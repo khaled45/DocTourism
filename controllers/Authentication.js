@@ -8,7 +8,7 @@ function VerifyToken(req, resp, next) {
     }
     let token = req.headers.authorization.split(' ')[1];
 
-    if (token === 'null') {
+    if (token === 'null' || token === 'undefined') {
         resp.status(401).send('unauthorized request');
     }
 
@@ -17,6 +17,7 @@ function VerifyToken(req, resp, next) {
     if (!payload) {
         resp.status(401).send('unauthorized request');
     }
+    debugger
     req.userID = payload.subject
     next();
 

@@ -7,44 +7,109 @@ var bcrypt = require("bcryptjs");
 var parseUrlencoded = bodyParser.urlencoded({
   extended: true
 });
+var verifyToken = require('./Authentication');
 
+var doctorModel = require('../models/doctorModel')
 var patientModel = require('../models/patientModel')
 var diagnosisModel = require("../models/diagnosisModel")
 var treatmentPlanModel = require("../models/treatmentPlanModel")
+var programModel = require("../models/programsModel")
+var travelAgentModel = require("../models/travelAgent")
+var adminModel = require("../models/admin")
 
 
+function chunk(array, size) {
+  const chunked_arr = [];
+  for (let i = 0; i < array.length; i++) {
+    const last = chunked_arr[chunked_arr.length - 1];
+    if (!last || last.length === size) {
+      chunked_arr.push([array[i]]);
+    } else {
+      last.push(array[i]);
+    }
+  }
+  return chunked_arr;
+}
+
+router.post('/signUp', (req, res) => {
 
 
-router.post('/signUp', parseUrlencoded, async (req, res) => {
-  const { username, password, email, phone, gender } = req.body
-  const newPatient = new patientModel({
-    _id: mongoose.Types.ObjectId(),
-    username,
-    password,
-    email,
-    phone,
-    gender,
-
+  doctorModel.findOne({ email: req.body.email }).exec((err, doctors) => {
+    if (err) {
+      res.json({ "message": "error" })
+    }
+    adminModel.findOne({ email: req.body.email }).exec((err, admins) => {
+      if (err) {
+        res.json({ "message": "error" })
+      }
+      travelAgentModel.findOne({ email: req.body.email }).exec((err, agents) => {
+        if (err) {
+          res.json({ "message": "error" })
+        }
+        if (doctors || admins || agents) {
+          res.json({ "message": "user already registered" });
+        }
+      })
+    })
   })
 
-  var salt = await bcrypt.genSalt(10);
-  newPatient.password = await bcrypt.hash(newPatient.password, salt);
-  await newPatient.save();
 
-  const payload = { subject: newPatient._id };
-  const token = jwt.sign(payload, 'secretKey')
 
-  res.status(200).json({
-    token, message: "SignUp Successfully"
-  });
+  patientModel.findOne({ email: req.body.email }).exec((err, patient) => {
+    if (err) {
+      res.json({ "message": "error" })
+    }
+    else if (!patient) {
+      const {
+        username,
+        password,
+        email,
+        phone,
+        gender,
+        age } = req.body
+
+      const newPatient = new patientModel({
+        _id: mongoose.Types.ObjectId(),
+        username,
+        password,
+        email,
+        phone,
+        gender,
+        age
+      })
+      bcrypt.genSalt(10, function (err, salt) {
+        if (err) {
+          res.json({ "message": "error" })
+        }
+        bcrypt.hash(req.body.password, salt, function (err, hash) {
+          if (err) {
+            res.json({ "message": "error" })
+          }
+          newPatient.password = hash;
+          newPatient.save((err) => {
+            if (err) {
+              res.json({ "message": "error" })
+            }
+            const payload = { subject: newPatient._id }
+            const token = jwt.sign(payload, 'secretKey')
+            res.json({ "message": "success", token })
+          });
+
+        });
+      });
+    }
+    else {
+      res.json({ "message": "user already registered" });
+    }
+  })
+
 })
 
-router.post("/profileImage", (req, resp) => {// use req.session.user here
+router.post("/profileImage", verifyToken, (req, resp) => {// use req.session.user here
 
-  const { _id } = req.session.user
-
+  const Pid = req.userID
   const { imageURL } = req.body
-  patientModel.findOne({ _id }).exec((err, patient) => {
+  patientModel.findOne({ _id: Pid }).exec((err, patient) => {
 
     patient.profileImg = imageURL
     patient.save((err, data) => {
@@ -55,36 +120,33 @@ router.post("/profileImage", (req, resp) => {// use req.session.user here
 
 });
 
-router.post("/fillDiagnosisForm", (req, res) => { // use req.session.user here 
-  const Pid = req.userID;
+router.post("/fillDiagnosisForm", verifyToken,(req, res) => { // use req.session.user here 
+  const patientID = req.userID;
   const {
     doctorID,
     MainProblem,
     avilableDuration,
-    Answers
+    doctorQuesAns,
+    medicalHistory
   } = req.body
 
-  diagnosisModel.findOne({ patientID: Pid, doctorID: doctorID }).exec((err, founded) => {
+  diagnosisModel.findOne({ patientID: patientID, doctorID: doctorID }).exec((err, founded) => {
     if (err) {
-      res.send("error in finding diagnosis model overwriet")
+      res.json({ "message": "error" })
     }
     else if (founded) {
       diagnosisModel.remove({ _id: founded._id }).exec((err) => {
-        console.log("removed from document")
         if (err) {
-          res.send(err)
+          res.json({ "message": "error" })
         }
-        patientModel.updateOne({ _id: Pid }, { $pull: { 'diagnosisForm': founded._id } }).exec((err) => {
+        patientModel.updateOne({ _id: patientID }, { $pull: { 'diagnosisForm': founded._id } }).exec((err) => {
           if (err) {
-            console.log("errorin array")
+            res.json({ "message": "error" })
           }
-          console.log("deleted from patient array")
         })
       })
     }
-    else {
-      console.log("not found")
-    }
+
 
     const newDiagnosisForm = new diagnosisModel({
       _id: mongoose.Types.ObjectId(),
@@ -92,24 +154,39 @@ router.post("/fillDiagnosisForm", (req, res) => { // use req.session.user here
       patientID,
       MainProblem,
       avilableDuration,
-      Answers
+      doctorQuesAns,
+      medicalHistory
 
     })
+    debugger
     newDiagnosisForm.save((err, result) => {
       if (err) {
-        res.sned(err)
+        res.json({ "message": "error" })
       }
       // res.status(200).send("done")
-      patientModel.findOne({ _id: Pid }).exec((err, patient) => {
+      patientModel.findOne({ _id: patientID }).exec((err, patient) => {
         if (err) {
-          res.send(err)
+          res.json({ "message": "error" })
         }
         patient.diagnosisForm.push(result._id)
         patient.save((err, finish) => {
           if (err) {
-            res.send(err)
+            res.json({ "message": "error" })
           }
-          res.json({ message: 'Diagnosis Form Added Successfully', data: finish })
+          doctorModel.findOne({ _id: req.body.doctorID }).exec((err, doctor) => {
+            if (err) {
+              res.json({ "message": "error" })
+            }
+            doctor.patients.push(patientID)
+            doctor.save((err) => {
+              if (err) {
+                res.json({ "message": "error" })
+              }
+              res.json({ "message": 'success', "data": newDiagnosisForm })
+
+            })
+
+          })
         })
       })
 
@@ -119,68 +196,156 @@ router.post("/fillDiagnosisForm", (req, res) => { // use req.session.user here
 });
 
 router.post("/Acceptance", (req, res) => {// use req.session.user here
-  // let _id = req.sesion.user
-  const { accept_flag, treatmentID } = req.body
-  treatmentPlanModel.findOne({ _id: treatmentID }).exec((err, treatment) => {
+  // const patientID = req.userID
+  const { accept_flag, treatmentID, patientID } = req.body
+
+  treatmentPlanModel.findOne({ _id: treatmentID, patientID: patientID }).exec((err, treatment) => {
     if (err) {
-      res.send("error in finding this treatment Plan ")
+      res.json({ "message": "error" })
     }
-    treatment.accept_flag = accept_flag
-    treatment.save()
-    res.send("done")
+    else if (treatment) {
+      if (accept_flag == "true") {
+        treatment.accept_flag = accept_flag
+        treatment.save((err) => {
+          if (err) {
+            res.json({ "message": "error" })
+          }
+          res.json({ "message": "success" })
+        })
+      }
+      else if (accept_flag == "false") {
+        treatmentPlanModel.remove({ _id: treatmentID }).exec((err) => {
+          if (err) {
+            res.json({ "message": "error" })
+          }
+          doctorModel.updateOne({ _id: treatment.doctorID }, { $pull: { 'treatmentPlans': treatmentID } }).exec((err) => {
+            if (err) {
+              res.json({ "message": "error" })
+            }
+            doctorModel.updateOne({ _id: treatment.doctorID }, { $pull: { 'patients': treatment.patientID } }).exec((err) => {
+              if (err) {
+                res.json({ "message": "error" })
+              }
+            })
+          })
+
+        })
+        diagnosisModel.findOne({ doctorID: treatment.doctorID, patientID: patientID }).exec((err, diagnosis) => {
+          if (err) {
+            res.json({ "message": "error" })
+          }
+          diagnosisModel.remove({ _id: diagnosis._id }).exec((err) => {
+            if (err) {
+              res.json({ "message": "error" })
+            }
+            else { console.log("diagnosis removed from document") }
+          })
+
+          patientModel.updateOne({ _id: patientID }, { $pull: { 'diagnosisForm': diagnosis._id } }).exec((err) => {
+            if (err) {
+              res.json({ "message": "error" })
+            }
+            res.json({ "message": "success" })
+          })
+
+
+        })
+
+      }
+      else { res.json({ "message": "error" }) }
+    }
+    else if (!treatment) {
+      res.json({ "message": "error" })
+    }
+    else {
+      res.json({ "message": "error" })
+    }
+
+
+  })
+})
+
+//test needed
+router.get('/program/:id', (req, res) => {
+  programModel.findOne({ _id: req.params.id }).exec((err, program) => {
+    if (err) {
+      res.json({ "message": "error" })
+    }
+
+    res.json({ "message": "success", "data": program })
+  })
+})
+
+//test needed
+router.post('/ProgramsByArea', (req, res) => {//return array of programs spliting to arrays and each array load 12 program
+  const { doctorID } = req.body
+  doctorData = doctorModel.findOne({ _id: doctorID })
+  finding = { "city": doctorData.location.city, "area": doctorData.location.area }
+  programModel.find({ location: finding }).exec((err, programs) => {
+    if (err) {
+      res.json({ "message": "error" })
+    }
+    chunks = chunk(programs, 12)
+    res.json({ "message": "success", "data": chunks })
+  })
+})
+
+//test needed
+router.post('/enrollProgram', (req, res) => {
+  const { patientID, programID } = req.body
+
+  programModel.findOne({ _id: programID }).exec((err, program) => {
+    if (err) {
+      res.json({ "message": "error" })
+    }
+    travelAgentModel.findOne({ _id: program.travelAgentID }).exec((err, agent) => {
+      if (err) {
+        res.json({ "message": "error" })
+      }
+      agent.patientsID.push(patientID)
+      agent.save((err) => {
+        if (err) {
+          res.json({ "message": "error" })
+        }
+        console.log("saved patient id in array in travel agent model")
+
+        patientModel.findOneAndUpdate({ _id: patientID }, { programID: programID }).exec((err) => {
+          if (err) {
+            res.json({ "message": "error" })
+          }
+          console.log("put program id in patient data")
+          res.json({ "message": "success" })
+        })
+      })
+    })
+  })
+
+})
+
+router.post("/feedback", (req, res) => {
+  const { patientID, comment, rate, doctorID } = req.body
+  var datetime = new Date();
+  patientModel.findOne({ _id: patientID }).exec((err, patient) => {
+    if (err) {
+      res.json({ "message": "error1" })
+    }
+    doctorModel.findOne({ _id: doctorID }).exec((err, doctor) => {
+      if (err) {
+        res.json({ "message": "error2" })
+      }
+      let feedback = { "comment": comment, "rate": rate, "data": datetime, "PName": patient.name }
+      doctor.feedbacks.push(feedback)
+
+      doctor.save((err) => {
+        if (err) {
+          res.json({ "message": "error3" })
+        }
+        res.json({ "message": "success" })
+      })
+    })
   })
 })
 
 
-
-
-//    "/patientMedicalMonth" Is Added In Fail Diagnosis API   //////////
-
-
-
-
-
 module.exports = router;
 
-
-
-
-
-// function parseJwt(token) {//function to decode jwt Token and return id of current user
-//   var base64Url = token.split('.')[1];
-//   var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-//   var parse = Buffer.from(base64, 'base64').toString()
-//   var jsonPayload = decodeURIComponent(parse.split('').map(function (c) {
-//     return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-//   }).join(''));
-
-//   return JSON.parse(jsonPayload);
-// };
-
-
-
-
-
-// router.post("/SigninWithGoogle", (req, resp) => {
-//   const { username, email } = req.body
-//   patientModel.findOne({ email: email }).exec((err, data) => {
-//     if (data) {
-//       debugger
-//       req.session.user = data
-//       resp.json({ message: 'loggedin', data })
-//     } else {
-//       let p1 = new patientModel({
-
-//         _id: mongoose.Types.ObjectId(),
-//         username,
-//         email
-//       })
-//       p1.save((err, data) => {
-//         debugger
-//         err ? resp.json({ message: 'error', err }) : resp.json({ message: 'success', data })
-
-//       })
-//     }
-
-//   })
-// });

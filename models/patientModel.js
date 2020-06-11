@@ -5,9 +5,7 @@ let patientModel = new mongoose.model('Patient', {
     username: {
         type: String,
         required: true,
-        unique: true,
-        max: 20,
-        min: 5
+        max: 30
     },
     password: {
         type: String,
@@ -32,20 +30,23 @@ let patientModel = new mongoose.model('Patient', {
     },
     arrivelDate: {
         type: Date,
-        required: true
     },
     leaveDate: {
         type: Date,
-        required: true
     },
     profileImg: {
         type: String,
         defult: "https://img.pngio.com/clip-art-openclipart-user-profile-facebook-free-content-facebook-facebook-profile-png-900_660.jpg"
     },
-    diagnosisForm: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Diagnosis' }]
+    diagnosisForm: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Diagnosis'
+    }],
 
-
-
+    programID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "programs",
+    }
 })
 
 module.exports = patientModel

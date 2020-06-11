@@ -9,7 +9,7 @@ app.use(bodyParser.json())
 
 
 
-mongoose.connect("mongodb://localhost:27017/DOC")
+mongoose.connect("mongodb://localhost:27017/DocTourism")
 mongoose.connection.on("error", err => {
   console.error(`MongoDB connection error: ${err}`);
   process.exit(1);
@@ -24,12 +24,16 @@ app.use(
 
 )
 
-var doctor = require("./controllers/doctor")
-var patient = require("./controllers/patient")
-var login = require("./controllers/login") 
-app.use("/doctor" , doctor)
-app.use("/patient" , patient)
-app.use('/login' , login)
+ var doctor = require("./controllers/doctor")
+ var patient = require("./controllers/patient")
+ var login = require("./controllers/login") 
+ var travelAgent = require("./controllers/travelAgent")
+ var admin =require("./controllers/admin")
+ app.use("/doctor" , doctor)
+ app.use("/patient" , patient)
+ app.use('/login' , login)
+ app.use('/travelAgent' , travelAgent)
+ app.use('/admin' , admin)
 
 
 io.on('connection', (socket) => {
@@ -40,4 +44,4 @@ io.on('connection', (socket) => {
   })
 })
 
-server.listen(8080)
+server.listen(8085)

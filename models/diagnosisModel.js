@@ -4,15 +4,18 @@ let diagnosisModel = new mongoose.model('Diagnosis', {
     _id: mongoose.Schema.Types.ObjectId,
 
     MainProblem: {
-        type: String,
-        required: true
+        type: Object
     },
-    
-    avilableDuration : Object,
 
-    Answers : [{
-        type : String
-    }] , 
+    avilableDuration: Object,
+
+    doctorQuesAns: {
+        type: Object
+    },
+
+    medicalHistory: {
+        type: Object
+    },
 
     patientID: {
         type: mongoose.Schema.Types.ObjectId,
@@ -31,4 +34,4 @@ let diagnosisModel = new mongoose.model('Diagnosis', {
 
 
 
-module.exports = diagnosisModel 
+module.exports = diagnosisModel

@@ -28,8 +28,9 @@ let treatmentPlanModel = new mongoose.model('treatmentPlan', {
         required: true
     },
     accept_flag: {
-         type: Boolean 
-        }
+        type: Boolean
+    }
+
 })
 
 module.exports = treatmentPlanModel 
