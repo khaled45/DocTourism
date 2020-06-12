@@ -152,7 +152,7 @@ router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to hande
     patientID,
 
   } = req.body
-
+  debugger
   diagnosisModel.findOne({ patientID: patientID, doctorID: doctorID }).exec((err, alreadySended) => {
     if (err) {
       res.json({ "message": 'error' })
