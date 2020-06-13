@@ -120,28 +120,18 @@ router.get('/listAll', (req, res) => {// list all Doctors
 
 router.post('/account', (req, res) => {// return data of doctor by ID
 
-  doctorModel.findOne({ _id: req.body.Did }).populate({
-    path: 'patients', populate: {
-      path: 'diagnosisForm',
-      model: 'Diagnosis'
-    }
-  }).exec((err, doctor) => {
+  doctorModel.findOne({ _id: req.body.Did }).populate('patients').exec((err, doctor) => {
     if (err) {
       res.json({ "message": "error" })
     }
+
     res.json({ "message": 'success', "data": doctor })
 
   })
 
 })
 
-router.post("/getDiangosisForm", verifyToken, (req, res) => {
-  
-  diagnosisModel.findOne({ _id: req.body.Did }).exec((err, data) => {
-    err ? res.json({ "message": 'error' }) : res.json({ "message": 'success', data: data })
 
-  })
-})
 
 router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to handel req.sesion.user
   const doctorID = req.userID;
@@ -184,7 +174,7 @@ router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to hande
           patientID,
           doctorID
         })
-        
+
         newTreatmentPlan.save((err, result) => {
           debugger
           if (err) {
@@ -245,6 +235,22 @@ router.post('/OnOffToggle', (req, res) => {//to identify what if doctor is ON or
     })
   })
 })
+
+router.get('/getAllTreatment', verifyToken, (req, resp) => {
+  DoctorId = req.userID
+  treatmentPlanModel.find({ doctorID: DoctorId }).populate('patientID').exec((err, data) => {
+    err ? resp.json({ "message": 'error' }) : resp.json({ "message": 'success', data: data })
+  })
+
+});
+
+router.get('/getAllDiagnosis', verifyToken, (req, resp) => {
+  DoctorId = req.userID
+  diagnosisModel.find({ doctorID: DoctorId }).populate('patientID').exec((err, data) => {
+    err ? resp.json({ "message": 'error' }) : resp.json({ "message": 'success', data: data })
+  })
+
+});
 
 
 
