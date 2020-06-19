@@ -92,7 +92,7 @@ router.post('/signUp', (req, res) => {
             }
             const payload = { subject: newPatient._id }
             const token = jwt.sign(payload, 'secretKey')
-            res.json({ "message": "success", token,type: 'patient' })
+            res.json({ "message": "success", token, type: 'patient' })
           });
 
         });
@@ -103,7 +103,26 @@ router.post('/signUp', (req, res) => {
     }
   })
 
-})
+});
+
+router.get('/account', verifyToken,(req, res) => {
+
+  patientModel.findOne({ _id: req.userID }).exec((err, patient) => {
+    if (err) {
+      res.json({ "message": "error" })
+    }
+    
+    treatmentPlanModel.find({ patientID: req.userID }).populate('doctorID').exec((err, treatmentPlans) => {
+      if (err) {
+        res.json({ "message": "error" })
+      } 
+      
+      res.json({ "message": 'success', "data": treatmentPlans })
+    })
+  });
+});
+
+
 
 router.post("/profileImage", verifyToken, (req, resp) => {// use req.session.user here
 
@@ -116,11 +135,11 @@ router.post("/profileImage", verifyToken, (req, resp) => {// use req.session.use
       err ? resp.json({ message: 'error' }) : resp.json({ message: 'success', data })
 
     })
-  })
+  });
 
 });
 
-router.post("/fillDiagnosisForm", verifyToken,(req, res) => { // use req.session.user here 
+router.post("/fillDiagnosisForm", verifyToken, (req, res) => { // use req.session.user here 
   const patientID = req.userID;
   const {
     doctorID,
@@ -156,7 +175,7 @@ router.post("/fillDiagnosisForm", verifyToken,(req, res) => { // use req.session
       avilableDuration,
       doctorQuesAns,
       medicalHistory,
-      Date:Date.now()
+      Date: Date.now()
     })
     debugger
     newDiagnosisForm.save((err, result) => {
