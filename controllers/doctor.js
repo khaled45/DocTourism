@@ -67,6 +67,7 @@ router.post('/signUp', (req, res) => {
         briefSummery,
         phone,
         title,
+        gender,
         Questions } = req.body
       let activeChecked = "true"
       const newDoctor = new doctorModel({
@@ -77,6 +78,7 @@ router.post('/signUp', (req, res) => {
         email,
         briefSummery,
         phone,
+        gender,
         title,
         activeChecked,
         Questions   // "Questions" is array of objects and each object contain all Questions like {"question" : "" , "type":""}

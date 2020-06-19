@@ -8,7 +8,7 @@ let doctorModel = new mongoose.model('Doctor', {
         max: 30
     },
 
-   password: {
+    password: {
         type: String,
         required: true,
         min: 8,
@@ -26,6 +26,7 @@ let doctorModel = new mongoose.model('Doctor', {
         max: 255
 
     },
+    gender: String,
 
     profileIMG: {
         type: String,
@@ -44,7 +45,7 @@ let doctorModel = new mongoose.model('Doctor', {
 
     phone: {
         type: Number
-       
+
     },
 
     title: {
@@ -63,8 +64,8 @@ let doctorModel = new mongoose.model('Doctor', {
         type: String,
         defult: "true"
     },
-    feedbacks : [{
-        type : Object // comment , rate , date , raterName
+    feedbacks: [{
+        type: Object // comment , rate , date , raterName
     }],
     isApproved: {
         type: String
