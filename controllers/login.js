@@ -68,7 +68,7 @@ router.post('/', parseUrlencoded, async (req, res) => {
                 else {
                   let payload = { subject: patients._id }
                   let token = jwt.sign(payload, 'secretKey')
-                  res.status(200).json({ "message": "success", "token": token })
+                  res.status(200).json({ "message": "success", "token": token, type: 'patient', id: patients._id })
                 }
 
               });
@@ -86,7 +86,7 @@ router.post('/', parseUrlencoded, async (req, res) => {
                   else {
                     let payload = { subject: doctors._id }
                     let token = jwt.sign(payload, 'secretKey')
-                    res.status(200).json({ "message": "success", "token": token })
+                    res.status(200).json({ "message": "success", "token": token, type: 'doctor', id: doctors._id })
                   }
 
                 });
@@ -112,7 +112,7 @@ router.post('/', parseUrlencoded, async (req, res) => {
                 else {
                   let payload = { subject: admins._id }
                   let token = jwt.sign(payload, 'secretKey')
-                  res.status(200).json({ "message": "success", "token": token })
+                  res.status(200).json({ "message": "success", "token": token, type: 'admin', id: admins._id })
                 }
 
               });
@@ -131,7 +131,7 @@ router.post('/', parseUrlencoded, async (req, res) => {
                   else {
                     let payload = { subject: agents._id }
                     let token = jwt.sign(payload, 'secretKey')
-                    res.status(200).json({ "message": "success", "token": token })
+                    res.status(200).json({ "message": "success", "token": token, type: 'travelAgent', id: agents._id })
                   }
 
                 });

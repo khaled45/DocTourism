@@ -67,6 +67,7 @@ router.post('/signUp', (req, res) => {
         briefSummery,
         phone,
         title,
+        gender,
         Questions } = req.body
       let activeChecked = "true"
       const newDoctor = new doctorModel({
@@ -77,6 +78,7 @@ router.post('/signUp', (req, res) => {
         email,
         briefSummery,
         phone,
+        gender,
         title,
         activeChecked,
         Questions   // "Questions" is array of objects and each object contain all Questions like {"question" : "" , "type":""}
@@ -96,7 +98,7 @@ router.post('/signUp', (req, res) => {
             }
             const payload = { subject: newDoctor._id }
             const token = jwt.sign(payload, 'secretKey')
-            res.json({ "message": "success", token })
+            res.json({ "message": "success", data: newDoctor, token, type: 'doctor' })
           });
 
         });
@@ -113,32 +115,27 @@ router.get('/listAll', (req, res) => {// list all Doctors
     if (err) {
       res.json({ "message": 'error' })
     }
-    
+
     res.json({ "message": 'success', data })
   })
 })
 
 router.post('/account', (req, res) => {// return data of doctor by ID
 
-  doctorModel.findOne({ _id: req.body.Did }).exec((err, doctor) => {
+  doctorModel.findOne({ _id: req.body.Did }).populate('patients').exec((err, doctor) => {
     if (err) {
       res.json({ "message": "error" })
     }
+
     res.json({ "message": 'success', "data": doctor })
 
   })
 
 })
 
-router.post("/patient", (req, res) => {// should donot be here this api 
-  // const {Did} = req.userid
-  doctorModel.findOne({ _id: req.body.Did }).exec((err, data) => {
-    err ? res.json({ "message": 'error' }) : res.json({ "message": 'success', data: data.patients })
 
-  })
-})
 
-router.post('/createTreatmentPlan', (req, res) => { //need to handel req.sesion.user
+router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to handel req.sesion.user
   const doctorID = req.userID;
   const {
     treatmentDate,
@@ -147,7 +144,7 @@ router.post('/createTreatmentPlan', (req, res) => { //need to handel req.sesion.
     patientID,
 
   } = req.body
-
+  debugger
   diagnosisModel.findOne({ patientID: patientID, doctorID: doctorID }).exec((err, alreadySended) => {
     if (err) {
       res.json({ "message": 'error' })
@@ -179,7 +176,9 @@ router.post('/createTreatmentPlan', (req, res) => { //need to handel req.sesion.
           patientID,
           doctorID
         })
+
         newTreatmentPlan.save((err, result) => {
+          debugger
           if (err) {
             res.json({ "message": 'error' })
           }
@@ -238,6 +237,22 @@ router.post('/OnOffToggle', (req, res) => {//to identify what if doctor is ON or
     })
   })
 })
+
+router.get('/getAllTreatment', verifyToken, (req, resp) => {
+  DoctorId = req.userID
+  treatmentPlanModel.find({ doctorID: DoctorId }).populate('patientID').exec((err, data) => {
+    err ? resp.json({ "message": 'error' }) : resp.json({ "message": 'success', data: data })
+  })
+
+});
+
+router.get('/getAllDiagnosis', verifyToken, (req, resp) => {
+  DoctorId = req.userID
+  diagnosisModel.find({ doctorID: DoctorId }).populate('patientID').exec((err, data) => {
+    err ? resp.json({ "message": 'error' }) : resp.json({ "message": 'success', data: data })
+  })
+
+});
 
 
 

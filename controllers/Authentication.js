@@ -17,7 +17,7 @@ function VerifyToken(req, resp, next) {
     if (!payload) {
         resp.status(401).send('unauthorized request');
     }
-    debugger
+    
     req.userID = payload.subject
     next();
 

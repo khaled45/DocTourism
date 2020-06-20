@@ -26,8 +26,12 @@ let diagnosisModel = new mongoose.model('Diagnosis', {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Doctor",
         required: true
-    }
+    },
 
+    Date: {
+        type: Object,
+        default: Date.now()
+    }
 
 })
 

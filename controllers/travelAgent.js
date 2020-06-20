@@ -88,7 +88,10 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
                                 if (err) {
                                     res.json({ "message": "error" })
                                 }
-                                res.json({ "message": "success" , "data": newTravelAgent})
+                                const payload = { subject: newTravelAgent._id }
+                                const token = jwt.sign(payload, 'secretKey')
+                                res.json({ "message": "success", token, type: 'travelAgent' })
+                               
                             })
 
                         })
