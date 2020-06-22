@@ -30,7 +30,7 @@ let doctorModel = new mongoose.model('Doctor', {
 
     profileIMG: {
         type: String,
-        // defult: "https://img.pngio.com/clip-art-openclipart-user-profile-facebook-free-content-facebook-facebook-profile-png-900_660.jpg"
+         defult: "https://img.pngio.com/clip-art-openclipart-user-profile-facebook-free-content-facebook-facebook-profile-png-900_660.jpg"
     },
 
     rate: {

@@ -39,19 +39,19 @@ router.post('/', parseUrlencoded, async (req, res) => {
 
   travelAgentModel.findOne({ email: req.body.email }).exec((err, agents) => {
     if (err) {
-      res.json({ "message": "error" })
+      res.json({ "message": "error", err })
     }
     adminModel.findOne({ email: req.body.email }).exec((err, admins) => {
       if (err) {
-        res.json({ "message": "error" })
+        res.json({ "message": "error", err })
       }
       patientModel.findOne({ email: req.body.email }).exec((err, patients) => {
         if (err) {
-          res.json({ "message": "error" })
+          res.json({ "message": "error", err })
         }
         doctorModel.findOne({ email: req.body.email }).exec((err, doctors) => {
           if (err) {
-            res.json({ "message": "error" })
+            res.json({ "message": "error", err })
           }
           if (agents || admins || patients || doctors) {
 
@@ -60,7 +60,7 @@ router.post('/', parseUrlencoded, async (req, res) => {
 
               bcrypt.compare(req.body.password, patients.password, (err, validepassword) => {
                 if (err) {
-                  res.json({ "message": "error" })
+                  res.json({ "message": "error",err })
                 }
                 else if (!validepassword) {
                   res.status(400).json({ "message": "invalid email or passwod" })
@@ -78,7 +78,7 @@ router.post('/', parseUrlencoded, async (req, res) => {
               if (doctors.isApproved == "true") {
                 bcrypt.compare(req.body.password, doctors.password, (err, validepassword) => {
                   if (err) {
-                    res.json({ "message": "error" })
+                    res.json({ "message": "error",err })
                   }
                   else if (!validepassword) {
                     res.status(400).json({ "message": "invalid email or passwod" })
