@@ -96,9 +96,7 @@ router.post('/signUp', (req, res) => {
             if (err) {
               res.json({ "message": "error" })
             }
-            const payload = { subject: newDoctor._id }
-            const token = jwt.sign(payload, 'secretKey')
-            res.json({ "message": "success", data: newDoctor, token, type: 'doctor' })
+            res.json({ "message": "success", data: newDoctor })
           });
 
         });

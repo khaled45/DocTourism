@@ -29,8 +29,8 @@ let diagnosisModel = new mongoose.model('Diagnosis', {
     },
 
     Date: {
-        type: Object,
-        default: Date.now()
+        type: Date,
+        default: Date.now
     }
 
 })

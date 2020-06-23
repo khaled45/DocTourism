@@ -3,6 +3,7 @@ var bodyParser = require("body-parser");
 var router = express.Router();
 var mongoose = require("mongoose");
 var bcrypt = require("bcryptjs");
+var verifyToken = require('./Authentication')
 var parseUrlencoded = bodyParser.urlencoded({
     extended: true
 });
@@ -87,7 +88,7 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
                 });
             });
         }
-        else{
+        else {
             res.json({ "message": "user already registered" })
         }
     })
@@ -102,26 +103,26 @@ router.post("/Approving", (req, res) => { //need testing
             res.json({ "message": "error" })
         }
         if (!agent) {
-/////////////////////////////////////////////////////////////////////////////////////////////////////    
-            
-        doctorModel.findOne({ _id: ID }).exec((err, doctor) => {
-            if (err) {
-                res.json({ "message": "error" })
-            }
-            if (!doctor) {
-                res.json({ "message": "user not register" })
-            }
-            if (doctor) {
-                if (approveFlag == "false") {
-                    doctorModel.remove({ _id: ID }).exec((err) => {
-                        if (err) {
-                            res.json({ "message": "error" })
-                        }
-                        let mailOptions = {
-                            from: 'DocTourism.com@gmail.com',
-                            to: doctor.email,
-                            subject: 'This E-mail is from DocTourism website',
-                            html:  `
+            /////////////////////////////////////////////////////////////////////////////////////////////////////    
+
+            doctorModel.findOne({ _id: ID }).exec((err, doctor) => {
+                if (err) {
+                    res.json({ "message": "error" })
+                }
+                if (!doctor) {
+                    res.json({ "message": "user not register" })
+                }
+                if (doctor) {
+                    if (approveFlag == "false") {
+                        doctorModel.remove({ _id: ID }).exec((err) => {
+                            if (err) {
+                                res.json({ "message": "error" })
+                            }
+                            let mailOptions = {
+                                from: 'DocTourism.com@gmail.com',
+                                to: doctor.email,
+                                subject: 'This E-mail is from DocTourism website',
+                                html: `
                             <!doctype html>
                             <html lang="en-US">
                             
@@ -196,31 +197,31 @@ router.post("/Approving", (req, res) => { //need testing
                             </body>
                             
                             </html>`
-                       
-                        };
-    
-                        transporter.sendMail(mailOptions, (error, info) => {
-                            if (error) {
+
+                            };
+
+                            transporter.sendMail(mailOptions, (error, info) => {
+                                if (error) {
+                                    res.json({ "message": "error" })
+                                }
+
+                                res.json({ "message": "success" })
+                            });
+
+                        })
+                    }
+                    else if (approveFlag == "true") {
+                        doctor.isApproved = approveFlag
+                        doctor.save((err) => {
+                            if (err) {
                                 res.json({ "message": "error" })
                             }
-
-                            res.json({ "message": "success" })
-                        });
-    
-                    })
-                }
-                else if (approveFlag == "true") {
-                    doctor.isApproved = approveFlag
-                    doctor.save((err) => {
-                        if (err) {
-                            res.json({ "message": "error" })
-                        }
-                        // send Mail to Travel Agent Accepted HERE
-                        let mailOptions = {
-                            from: 'DocTourism.com@gmail.com',
-                            to: doctor.email,
-                            subject: 'This E-mail is from DocTourism website',
-                            html: `
+                            // send Mail to Travel Agent Accepted HERE
+                            let mailOptions = {
+                                from: 'DocTourism.com@gmail.com',
+                                to: doctor.email,
+                                subject: 'This E-mail is from DocTourism website',
+                                html: `
                             <!doctype html>
                             <html lang="en-US">
                             
@@ -297,25 +298,25 @@ router.post("/Approving", (req, res) => { //need testing
                             </body>
                             
                             </html>`
-                       
-                        };
-    
-                        transporter.sendMail(mailOptions, (error, info) => {
-                            if (error) {
-                                res.json({ "message": "error" })
-                            }
-                            res.json({ "message": "success" })
-                        });
-                    })
-                }
-                else {
-                    res.json({ "message": "error" })
-                }
-            }
-    
-        })
 
- /////////////////////////////////////////////////////////////////////////////////////////////////////
+                            };
+
+                            transporter.sendMail(mailOptions, (error, info) => {
+                                if (error) {
+                                    res.json({ "message": "error" })
+                                }
+                                res.json({ "message": "success" })
+                            });
+                        })
+                    }
+                    else {
+                        res.json({ "message": "error" })
+                    }
+                }
+
+            })
+
+            /////////////////////////////////////////////////////////////////////////////////////////////////////
         }
         if (agent) {
             if (approveFlag == "false") {
@@ -327,7 +328,7 @@ router.post("/Approving", (req, res) => { //need testing
                         from: 'DocTourism.com@gmail.com',
                         to: agent.email,
                         subject: 'This E-mail is from DocTourism website',
-                        html:  `
+                        html: `
                         <!doctype html>
                         <html lang="en-US">
                         
@@ -402,7 +403,7 @@ router.post("/Approving", (req, res) => { //need testing
                         </body>
                         
                         </html>`
-                   
+
                     };
 
                     transporter.sendMail(mailOptions, (error, info) => {
@@ -502,7 +503,7 @@ router.post("/Approving", (req, res) => { //need testing
                         </body>
                         
                         </html>`
-                   
+
                     };
 
                     transporter.sendMail(mailOptions, (error, info) => {
@@ -540,8 +541,16 @@ router.post("/deletDoctor", (req, res) => {//need testing
             res.json({ "message": "error" })
         }
         res.json({ "message": "success" })
+    });
+
+})
+
+router.get('/listDcotors', verifyToken, (req, resp) => {
+    doctorModel.find({}).exec((err, data) => {
+        err ? resp.json({ message: 'error', err }) : resp.json({ message: 'success', data })
     })
 })
+
 
 
 
