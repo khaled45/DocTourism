@@ -1,4 +1,5 @@
 var mongoose = require('mongoose')
+const { object } = require('joi')
 
 let diagnosisModel = new mongoose.model('Diagnosis', {
     _id: mongoose.Schema.Types.ObjectId,
@@ -28,9 +29,8 @@ let diagnosisModel = new mongoose.model('Diagnosis', {
         required: true
     },
 
-    Date: {
-        type: Object,
-        default: Date.now()
+    createdDate: {
+        type: Object
     }
 
 })

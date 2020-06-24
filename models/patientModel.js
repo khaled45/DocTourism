@@ -46,7 +46,10 @@ let patientModel = new mongoose.model('Patient', {
     programID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "programs",
-    }
+    },
+    CreatedDate: {
+        type: Object // day , month , year
+    },
 })
 
 module.exports = patientModel

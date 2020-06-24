@@ -69,6 +69,12 @@ router.post('/signUp', (req, res) => {
         title,
         gender,
         Questions } = req.body
+      var currentdate = new Date();
+      var createdDate = {
+        "day": currentdate.getDate(),
+        "month": (currentdate.getMonth() + 1),
+        "year": currentdate.getFullYear()
+      }
       let activeChecked = "true"
       const newDoctor = new doctorModel({
         _id: mongoose.Types.ObjectId(),
@@ -81,7 +87,8 @@ router.post('/signUp', (req, res) => {
         gender,
         title,
         activeChecked,
-        Questions   // "Questions" is array of objects and each object contain all Questions like {"question" : "" , "type":""}
+        Questions,   // "Questions" is array of objects and each object contain all Questions like {"question" : "" , "type":""}
+        createdDate
       })
       bcrypt.genSalt(10, function (err, salt) {
         if (err) {
@@ -96,9 +103,7 @@ router.post('/signUp', (req, res) => {
             if (err) {
               res.json({ "message": "error" })
             }
-            const payload = { subject: newDoctor._id }
-            const token = jwt.sign(payload, 'secretKey')
-            res.json({ "message": "success", data: newDoctor, token, type: 'doctor' })
+            res.json({ "message": "success", data: newDoctor })
           });
 
         });
@@ -144,6 +149,12 @@ router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to hande
     patientID,
 
   } = req.body
+  var currentdate = new Date();
+  var createdDate = {
+    "day": currentdate.getDate(),
+    "month": (currentdate.getMonth() + 1),
+    "year": currentdate.getFullYear()
+  }
   debugger
   diagnosisModel.findOne({ patientID: patientID, doctorID: doctorID }).exec((err, alreadySended) => {
     if (err) {
@@ -174,7 +185,8 @@ router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to hande
           cost,
           description,
           patientID,
-          doctorID
+          doctorID,
+          createdDate
         })
 
         newTreatmentPlan.save((err, result) => {

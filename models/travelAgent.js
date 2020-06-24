@@ -44,6 +44,9 @@ let travelAgentModel = new mongoose.model('travelAgent', {
     
     isApproved: {
         type: String
+    },
+    CreatedDate: {
+        type: Object // day , month , year
     }
 
 

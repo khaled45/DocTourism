@@ -17,31 +17,32 @@ mongoose.connection.on("error", err => {
 
 app.use(
   cors({
-      origin: ' http://localhost:4200',
-      credentials: true,
-      maxAge: 1000000
+    origin: ' http://localhost:4200',
+    credentials: true,
+    maxAge: 1000000
   })
 
 )
 
- var doctor = require("./controllers/doctor")
- var patient = require("./controllers/patient")
- var login = require("./controllers/login") 
- var travelAgent = require("./controllers/travelAgent")
- var admin =require("./controllers/admin")
- app.use("/doctor" , doctor)
- app.use("/patient" , patient)
- app.use('/login' , login)
- app.use('/travelAgent' , travelAgent)
- app.use('/admin' , admin)
+var doctor = require("./controllers/doctor")
+var patient = require("./controllers/patient")
+var login = require("./controllers/login")
+var travelAgent = require("./controllers/travelAgent")
+var admin = require("./controllers/admin")
+app.use("/doctor", doctor)
+app.use("/patient", patient)
+app.use('/login', login)
+app.use('/travelAgent', travelAgent)
+app.use('/admin', admin)
 
 
 io.on('connection', (socket) => {
   console.log('new user connected')
   socket.emit("fromServer", "hello from Server")
-  socket.on('fromFront' , (data)=>{
+  socket.on('fromFront', (data) => {
     console.log(data)
   })
 })
+
 
 server.listen(8085)

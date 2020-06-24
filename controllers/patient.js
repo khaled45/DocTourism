@@ -67,7 +67,12 @@ router.post('/signUp', (req, res) => {
         phone,
         gender,
         age } = req.body
-
+      var currentdate = new Date();
+      var createdDate = {
+        "day": currentdate.getDate(),
+        "month": (currentdate.getMonth() + 1),
+        "year": currentdate.getFullYear()
+      }
       const newPatient = new patientModel({
         _id: mongoose.Types.ObjectId(),
         username,
@@ -75,7 +80,8 @@ router.post('/signUp', (req, res) => {
         email,
         phone,
         gender,
-        age
+        age,
+        createdDate
       })
       bcrypt.genSalt(10, function (err, salt) {
         if (err) {
@@ -105,18 +111,18 @@ router.post('/signUp', (req, res) => {
 
 });
 
-router.get('/account', verifyToken,(req, res) => {
+router.get('/account', verifyToken, (req, res) => {
 
   patientModel.findOne({ _id: req.userID }).exec((err, patient) => {
     if (err) {
       res.json({ "message": "error" })
     }
-    
+
     treatmentPlanModel.find({ patientID: req.userID }).populate('doctorID').exec((err, treatmentPlans) => {
       if (err) {
         res.json({ "message": "error" })
-      } 
-      
+      }
+
       res.json({ "message": 'success', "data": treatmentPlans })
     })
   });
@@ -149,6 +155,12 @@ router.post("/fillDiagnosisForm", verifyToken, (req, res) => { // use req.sessio
     medicalHistory
   } = req.body
 
+  var currentdate = new Date();
+  var createdDate = {
+    "day": currentdate.getDate(),
+    "month": (currentdate.getMonth() + 1),
+    "year": currentdate.getFullYear()
+  }
   diagnosisModel.findOne({ patientID: patientID, doctorID: doctorID }).exec((err, founded) => {
     if (err) {
       res.json({ "message": "error" })
@@ -175,7 +187,7 @@ router.post("/fillDiagnosisForm", verifyToken, (req, res) => { // use req.sessio
       avilableDuration,
       doctorQuesAns,
       medicalHistory,
-      Date: Date.now()
+      createdDate
     })
     debugger
     newDiagnosisForm.save((err, result) => {
