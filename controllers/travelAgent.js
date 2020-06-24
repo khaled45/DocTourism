@@ -55,7 +55,12 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
                 location
             } = req.body
             isApproved = "false"
-
+            var currentdate = new Date();
+            var createdDate = {
+              "day": currentdate.getDate(),
+              "month": (currentdate.getMonth() + 1),
+              "year": currentdate.getFullYear()
+            }
             const newTravelAgent = new travelAgentModel({
                 _id: mongoose.Types.ObjectId(),
                 companyName,
@@ -63,7 +68,8 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
                 email,
                 phone,
                 location,
-                isApproved
+                isApproved,
+                createdDate
             })
 
             bcrypt.genSalt(10, function (err, salt) {

@@ -8,7 +8,7 @@ let doctorModel = new mongoose.model('Doctor', {
         max: 30
     },
 
-   password: {
+    password: {
         type: String,
         required: true,
         min: 8,
@@ -26,10 +26,11 @@ let doctorModel = new mongoose.model('Doctor', {
         max: 255
 
     },
+    gender: String,
 
     profileIMG: {
         type: String,
-        // defult: "https://img.pngio.com/clip-art-openclipart-user-profile-facebook-free-content-facebook-facebook-profile-png-900_660.jpg"
+         defult: "https://img.pngio.com/clip-art-openclipart-user-profile-facebook-free-content-facebook-facebook-profile-png-900_660.jpg"
     },
 
     rate: {
@@ -44,11 +45,14 @@ let doctorModel = new mongoose.model('Doctor', {
 
     phone: {
         type: Number
-       
     },
 
     title: {
         type: String
+    },
+
+    CreatedDate: {
+        type: Object // day , month , year
     },
 
     Questions: [{ type: Object }], //hold two atribute  {question : "" , type : ""}
@@ -63,8 +67,8 @@ let doctorModel = new mongoose.model('Doctor', {
         type: String,
         defult: "true"
     },
-    feedbacks : [{
-        type : Object // comment , rate , date , raterName
+    feedbacks: [{
+        type: Object // comment , rate , date , raterName
     }],
     isApproved: {
         type: String

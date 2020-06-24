@@ -29,6 +29,9 @@ let treatmentPlanModel = new mongoose.model('treatmentPlan', {
     },
     accept_flag: {
         type: Boolean
+    },
+    CreatedDate: {
+        type: Object // day , month , year
     }
 
 })

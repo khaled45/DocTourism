@@ -67,7 +67,14 @@ router.post('/signUp', (req, res) => {
         briefSummery,
         phone,
         title,
+        gender,
         Questions } = req.body
+      var currentdate = new Date();
+      var createdDate = {
+        "day": currentdate.getDate(),
+        "month": (currentdate.getMonth() + 1),
+        "year": currentdate.getFullYear()
+      }
       let activeChecked = "true"
       const newDoctor = new doctorModel({
         _id: mongoose.Types.ObjectId(),
@@ -77,9 +84,11 @@ router.post('/signUp', (req, res) => {
         email,
         briefSummery,
         phone,
+        gender,
         title,
         activeChecked,
-        Questions   // "Questions" is array of objects and each object contain all Questions like {"question" : "" , "type":""}
+        Questions,   // "Questions" is array of objects and each object contain all Questions like {"question" : "" , "type":""}
+        createdDate
       })
       bcrypt.genSalt(10, function (err, salt) {
         if (err) {
@@ -94,9 +103,7 @@ router.post('/signUp', (req, res) => {
             if (err) {
               res.json({ "message": "error" })
             }
-            const payload = { subject: newDoctor._id }
-            const token = jwt.sign(payload, 'secretKey')
-            res.json({ "message": "success", data: newDoctor, token, type: 'doctor' })
+            res.json({ "message": "success", data: newDoctor })
           });
 
         });
@@ -120,28 +127,17 @@ router.get('/listAll', (req, res) => {// list all Doctors
 
 router.post('/account', (req, res) => {// return data of doctor by ID
 
-  doctorModel.findOne({ _id: req.body.Did }).populate({
-    path: 'patients', populate: {
-      path: 'diagnosisForm',
-      model: 'Diagnosis'
-    }
-  }).exec((err, doctor) => {
+  doctorModel.findOne({ _id: req.body.Did }).populate('patients').exec((err, doctor) => {
     if (err) {
       res.json({ "message": "error" })
     }
+
     res.json({ "message": 'success', "data": doctor })
 
   })
 
 })
 
-router.post("/getDiangosisForm", verifyToken, (req, res) => {
-  
-  diagnosisModel.findOne({ _id: req.body.Did }).exec((err, data) => {
-    err ? res.json({ "message": 'error' }) : res.json({ "message": 'success', data: data })
-
-  })
-})
 
 router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to handel req.sesion.user
   const doctorID = req.userID;
@@ -152,7 +148,13 @@ router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to hande
     patientID,
 
   } = req.body
-
+  var currentdate = new Date();
+  var createdDate = {
+    "day": currentdate.getDate(),
+    "month": (currentdate.getMonth() + 1),
+    "year": currentdate.getFullYear()
+  }
+  debugger
   diagnosisModel.findOne({ patientID: patientID, doctorID: doctorID }).exec((err, alreadySended) => {
     if (err) {
       res.json({ "message": 'error' })
@@ -182,9 +184,10 @@ router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to hande
           cost,
           description,
           patientID,
-          doctorID
+          doctorID,
+          createdDate
         })
-        
+
         newTreatmentPlan.save((err, result) => {
           debugger
           if (err) {
@@ -245,6 +248,22 @@ router.post('/OnOffToggle', (req, res) => {//to identify what if doctor is ON or
     })
   })
 })
+
+router.get('/getAllTreatment', verifyToken, (req, resp) => {
+  DoctorId = req.userID
+  treatmentPlanModel.find({ doctorID: DoctorId }).populate('patientID').exec((err, data) => {
+    err ? resp.json({ "message": 'error' }) : resp.json({ "message": 'success', data: data })
+  })
+
+});
+
+router.get('/getAllDiagnosis', verifyToken, (req, resp) => {
+  DoctorId = req.userID
+  diagnosisModel.find({ doctorID: DoctorId }).populate('patientID').exec((err, data) => {
+    err ? resp.json({ "message": 'error' }) : resp.json({ "message": 'success', data: data })
+  })
+
+});
 
 
 
