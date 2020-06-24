@@ -30,7 +30,7 @@ let treatmentPlanModel = new mongoose.model('treatmentPlan', {
     accept_flag: {
         type: Boolean
     },
-    CreatedDate: {
+    createdDate: {
         type: Object // day , month , year
     }
 

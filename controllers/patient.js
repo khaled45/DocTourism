@@ -31,23 +31,88 @@ function chunk(array, size) {
   return chunked_arr;
 }
 
+
+
 router.post('/signUp', (req, res) => {
 
 
   doctorModel.findOne({ email: req.body.email }).exec((err, doctors) => {
     if (err) {
-      res.json({ "message": "error" })
+      debugger
+      res.json({ "message": "error1" })
     }
-    adminModel.findOne({ email: req.body.email }).exec((err, admins) => {
-      if (err) {
-        res.json({ "message": "error" })
+    adminModel.findOne({ email: req.body.email }).exec((err2, admins) => {
+      if (err2) {
+        res.json({ "message": "error2" })
       }
-      travelAgentModel.findOne({ email: req.body.email }).exec((err, agents) => {
-        if (err) {
-          res.json({ "message": "error" })
+      travelAgentModel.findOne({ email: req.body.email }).exec((err3, agents) => {
+        if (err3) {
+          res.json({ "message": "error3" })
         }
         if (doctors || admins || agents) {
+          debugger
           res.json({ "message": "user already registered" });
+        }
+        else {
+
+          patientModel.findOne({ email: req.body.email }).exec((err, patient) => {
+            if (err) {
+              res.json({ "message": "error4" })
+            }
+            else if (!patient) {
+              const {
+                username,
+                password,
+                email,
+                phone,
+                gender,
+                age } = req.body
+              var currentdate = new Date();
+              var createdDate = {
+                "day": currentdate.getDate(),
+                "month": (currentdate.getMonth() + 1),
+                "year": currentdate.getFullYear()
+              }
+              const newPatient = new patientModel({
+                _id: mongoose.Types.ObjectId(),
+                username,
+                password,
+                email,
+                phone,
+                gender,
+                age,
+                createdDate
+              })
+              debugger
+              bcrypt.genSalt(10, function (err, salt) {
+                if (err) {
+                  res.json({ "message": "error5" })
+                }
+                bcrypt.hash(req.body.password, salt, function (err, hash) {
+                  if (err) {
+                    res.json({ "message": "error6" })
+                  }
+                  newPatient.password = hash;
+                  newPatient.save((err) => {
+                    if (err) {
+                      res.json({ "message": "error7" })
+                    }
+                    const payload = { subject: newPatient._id }
+                    const token = jwt.sign(payload, 'secretKey')
+                    res.json({ "message": "success", token, type: 'patient' })
+                  });
+
+                });
+              });
+            }
+            else {
+              debugger
+              res.json({ "message": "user already registered" });
+            }
+          })
+
+
+
         }
       })
     })
@@ -55,59 +120,7 @@ router.post('/signUp', (req, res) => {
 
 
 
-  patientModel.findOne({ email: req.body.email }).exec((err, patient) => {
-    if (err) {
-      res.json({ "message": "error" })
-    }
-    else if (!patient) {
-      const {
-        username,
-        password,
-        email,
-        phone,
-        gender,
-        age } = req.body
-      var currentdate = new Date();
-      var createdDate = {
-        "day": currentdate.getDate(),
-        "month": (currentdate.getMonth() + 1),
-        "year": currentdate.getFullYear()
-      }
-      const newPatient = new patientModel({
-        _id: mongoose.Types.ObjectId(),
-        username,
-        password,
-        email,
-        phone,
-        gender,
-        age,
-        createdDate
-      })
-      bcrypt.genSalt(10, function (err, salt) {
-        if (err) {
-          res.json({ "message": "error" })
-        }
-        bcrypt.hash(req.body.password, salt, function (err, hash) {
-          if (err) {
-            res.json({ "message": "error" })
-          }
-          newPatient.password = hash;
-          newPatient.save((err) => {
-            if (err) {
-              res.json({ "message": "error" })
-            }
-            const payload = { subject: newPatient._id }
-            const token = jwt.sign(payload, 'secretKey')
-            res.json({ "message": "success", token, type: 'patient' })
-          });
 
-        });
-      });
-    }
-    else {
-      res.json({ "message": "user already registered" });
-    }
-  })
 
 });
 

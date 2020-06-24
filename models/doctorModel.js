@@ -52,7 +52,7 @@ let doctorModel = new mongoose.model('Doctor', {
         type: String
     },
 
-    CreatedDate: {
+    createdDate: {
         type: Object // day , month , year
     },
 

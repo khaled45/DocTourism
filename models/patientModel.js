@@ -47,7 +47,7 @@ let patientModel = new mongoose.model('Patient', {
         type: mongoose.Schema.Types.ObjectId,
         ref: "programs",
     },
-    CreatedDate: {
+    createdDate: {
         type: Object // day , month , year
     },
 })

@@ -19,34 +19,36 @@ var doctorModel = require('../models/doctorModel')
 
 
 router.post('/signUp', parseUrlencoded, async (req, res) => {
-    
-        
-  doctorModel.findOne({ email: req.body.email }).exec((err, doctors) => {
-    if (err) {
-      res.json({ "message": "error" })
-    }
-    adminModel.findOne({ email: req.body.email }).exec((err, admins) => {
-      if (err) {
-        res.json({ "message": "error" })
-      }
-      patientModel.findOne({ email: req.body.email }).exec((err, patients) => {
+
+
+    doctorModel.findOne({ email: req.body.email }).exec((err, doctors) => {
         if (err) {
-          res.json({ "message": "error" })
+            res.json({ "message": "error" })
         }
-        if (doctors || admins || patients) {
-          res.json({ "message": "user already registered" });
-        }
-      })
+        adminModel.findOne({ email: req.body.email }).exec((err, admins) => {
+            if (err) {
+                res.json({ "message": "error" })
+            }
+            patientModel.findOne({ email: req.body.email }).exec((err, patients) => {
+                if (err) {
+                    res.json({ "message": "error" })
+                }
+                if (doctors || admins || patients) {
+                    res.json({ "message": "user already registered" });
+                }
+            })
+        })
     })
-  })
 
 
     travelAgentModel.findOne({ email: req.body.email }).exec((err, agent) => {
         if (err) {
+            debugger
             res.json({ "message": "error" })
         }
 
         else if (!agent) {
+            debugger
             const {
                 companyName,
                 password,
@@ -57,9 +59,9 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
             isApproved = "false"
             var currentdate = new Date();
             var createdDate = {
-              "day": currentdate.getDate(),
-              "month": (currentdate.getMonth() + 1),
-              "year": currentdate.getFullYear()
+                "day": currentdate.getDate(),
+                "month": (currentdate.getMonth() + 1),
+                "year": currentdate.getFullYear()
             }
             const newTravelAgent = new travelAgentModel({
                 _id: mongoose.Types.ObjectId(),
@@ -85,19 +87,19 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
                             res.json({ "message": "error" })
                         }
                         admin.approving.push(newTravelAgent._id)
-                        admin.save((err)=>{
+                        admin.save((err) => {
                             if (err) {
                                 res.json({ "message": "error" })
                             }
                             newTravelAgent.password = hash
-                            newTravelAgent.save((err)=>{
+                            newTravelAgent.save((err) => {
                                 if (err) {
                                     res.json({ "message": "error" })
                                 }
                                 const payload = { subject: newTravelAgent._id }
                                 const token = jwt.sign(payload, 'secretKey')
                                 res.json({ "message": "success", token, type: 'travelAgent' })
-                               
+
                             })
 
                         })
