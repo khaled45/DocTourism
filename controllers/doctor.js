@@ -69,13 +69,8 @@ router.post('/signUp', (req, res) => {
         title,
         gender,
         Questions } = req.body
-      var currentdate = new Date();
-      var createdDate = {
-        "day": currentdate.getDate(),
-        "month": (currentdate.getMonth() + 1),
-        "year": currentdate.getFullYear()
-      }
       let activeChecked = "true"
+
       const newDoctor = new doctorModel({
         _id: mongoose.Types.ObjectId(),
         username,
@@ -88,7 +83,6 @@ router.post('/signUp', (req, res) => {
         title,
         activeChecked,
         Questions,   // "Questions" is array of objects and each object contain all Questions like {"question" : "" , "type":""}
-        createdDate
       })
       bcrypt.genSalt(10, function (err, salt) {
         if (err) {
@@ -148,13 +142,7 @@ router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to hande
     patientID,
 
   } = req.body
-  var currentdate = new Date();
-  var createdDate = {
-    "day": currentdate.getDate(),
-    "month": (currentdate.getMonth() + 1),
-    "year": currentdate.getFullYear()
-  }
-  debugger
+
   diagnosisModel.findOne({ patientID: patientID, doctorID: doctorID }).exec((err, alreadySended) => {
     if (err) {
       res.json({ "message": 'error' })
@@ -185,7 +173,6 @@ router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to hande
           description,
           patientID,
           doctorID,
-          createdDate
         })
 
         newTreatmentPlan.save((err, result) => {
@@ -265,6 +252,22 @@ router.get('/getAllDiagnosis', verifyToken, (req, resp) => {
 
 });
 
+
+router.post("/uploadImage", verifyToken,(req, resp) => {
+
+  const { imageURL } = req.body
+  doctorModel.findOne({ _id: req.userID }).exec((err, data) => {
+    data.profileIMG = imageURL
+    
+    data.save((err, data) => {
+
+      err ? resp.json({ message: 'error' }) : resp.json({ message: 'success', data })
+
+    })
+
+  })
+
+});
 
 
 

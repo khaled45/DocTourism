@@ -36,7 +36,7 @@ let patientModel = new mongoose.model('Patient', {
     },
     profileImg: {
         type: String,
-        defult: "https://img.pngio.com/clip-art-openclipart-user-profile-facebook-free-content-facebook-facebook-profile-png-900_660.jpg"
+        default: "https://img.pngio.com/clip-art-openclipart-user-profile-facebook-free-content-facebook-facebook-profile-png-900_660.jpg"
     },
     diagnosisForm: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -48,7 +48,8 @@ let patientModel = new mongoose.model('Patient', {
         ref: "programs",
     },
     CreatedDate: {
-        type: Object // day , month , year
+        type: Date,
+        default: Date.now // day , month , year
     },
 })
 

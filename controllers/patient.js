@@ -67,13 +67,8 @@ router.post('/signUp', (req, res) => {
         phone,
         gender,
         age } = req.body
-      var currentdate = new Date();
-      var createdDate = {
-        "day": currentdate.getDate(),
-        "month": (currentdate.getMonth() + 1),
-        "year": currentdate.getFullYear()
-      }
-      const newPatient = new patientModel({
+
+        const newPatient = new patientModel({
         _id: mongoose.Types.ObjectId(),
         username,
         password,
@@ -81,7 +76,6 @@ router.post('/signUp', (req, res) => {
         phone,
         gender,
         age,
-        createdDate
       })
       bcrypt.genSalt(10, function (err, salt) {
         if (err) {
@@ -155,12 +149,6 @@ router.post("/fillDiagnosisForm", verifyToken, (req, res) => { // use req.sessio
     medicalHistory
   } = req.body
 
-  var currentdate = new Date();
-  var createdDate = {
-    "day": currentdate.getDate(),
-    "month": (currentdate.getMonth() + 1),
-    "year": currentdate.getFullYear()
-  }
   diagnosisModel.findOne({ patientID: patientID, doctorID: doctorID }).exec((err, founded) => {
     if (err) {
       res.json({ "message": "error" })
@@ -187,7 +175,6 @@ router.post("/fillDiagnosisForm", verifyToken, (req, res) => { // use req.sessio
       avilableDuration,
       doctorQuesAns,
       medicalHistory,
-      createdDate
     })
     debugger
     newDiagnosisForm.save((err, result) => {

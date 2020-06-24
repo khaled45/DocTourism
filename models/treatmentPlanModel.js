@@ -31,7 +31,8 @@ let treatmentPlanModel = new mongoose.model('treatmentPlan', {
         type: Boolean
     },
     CreatedDate: {
-        type: Object // day , month , year
+        type: Date,
+        default: Date.now // day , month , year
     }
 
 })

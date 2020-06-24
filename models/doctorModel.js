@@ -30,7 +30,7 @@ let doctorModel = new mongoose.model('Doctor', {
 
     profileIMG: {
         type: String,
-         defult: "https://img.pngio.com/clip-art-openclipart-user-profile-facebook-free-content-facebook-facebook-profile-png-900_660.jpg"
+        default: "https://img.pngio.com/clip-art-openclipart-user-profile-facebook-free-content-facebook-facebook-profile-png-900_660.jpg"
     },
 
     rate: {
@@ -52,7 +52,8 @@ let doctorModel = new mongoose.model('Doctor', {
     },
 
     CreatedDate: {
-        type: Object // day , month , year
+        type: Date,
+        default: Date.now // day , month , year
     },
 
     Questions: [{ type: Object }], //hold two atribute  {question : "" , type : ""}

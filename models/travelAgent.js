@@ -46,7 +46,8 @@ let travelAgentModel = new mongoose.model('travelAgent', {
         type: String
     },
     CreatedDate: {
-        type: Object // day , month , year
+        type: Date,
+        default: Date.now // day , month , year
     }
 
 
