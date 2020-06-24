@@ -44,54 +44,59 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
                 if (agents || doctors || patients) {
                     res.json({ "message": "user already registered" });
                 }
+                else {
+
+                    adminModel.findOne({ email: req.body.email }).exec((err, admin) => {
+                        if (err) {
+                            res.json({ "message": "error" })
+                        }
+                        else if (!admin) {
+                            const {
+                                username,
+                                password,
+                                email,
+                                phone
+                            } = req.body
+
+                            const newAdmin = new adminModel({
+                                _id: mongoose.Types.ObjectId(),
+                                username,
+                                password,
+                                email,
+                                phone
+                            })
+
+                            bcrypt.genSalt(10, function (err, salt) {
+                                if (err) {
+                                    res.json({ "message": "error" })
+                                }
+                                bcrypt.hash(req.body.password, salt, function (err, hash) {
+                                    if (err) {
+                                        res.json({ "message": "error" })
+                                    }
+                                    newAdmin.password = hash;
+                                    newAdmin.save((err) => {
+                                        if (err) {
+                                            res.json({ "message": "error" })
+                                        }
+                                        res.json({ "message": "success", data: newAdmin })
+                                    });
+
+                                });
+                            });
+                        }
+                        else {
+                            res.json({ "message": "user already registered" })
+                        }
+                    })
+
+                }
             })
         })
     })
 
 
-    adminModel.findOne({ email: req.body.email }).exec((err, admin) => {
-        if (err) {
-            res.json({ "message": "error" })
-        }
-        else if (!admin) {
-            const {
-                username,
-                password,
-                email,
-                phone
-            } = req.body
 
-            const newAdmin = new adminModel({
-                _id: mongoose.Types.ObjectId(),
-                username,
-                password,
-                email,
-                phone
-            })
-
-            bcrypt.genSalt(10, function (err, salt) {
-                if (err) {
-                    res.json({ "message": "error" })
-                }
-                bcrypt.hash(req.body.password, salt, function (err, hash) {
-                    if (err) {
-                        res.json({ "message": "error" })
-                    }
-                    newAdmin.password = hash;
-                    newAdmin.save((err) => {
-                        if (err) {
-                            res.json({ "message": "error" })
-                        }
-                        res.json({ "message": "success", data: newAdmin })
-                    });
-
-                });
-            });
-        }
-        else {
-            res.json({ "message": "user already registered" })
-        }
-    })
 
 
 })
@@ -501,7 +506,6 @@ router.post("/Approving", (req, res) => { //need testing
                         </body>
                         
                         </html>`
-
                     };
 
                     transporter.sendMail(mailOptions, (error, info) => {
@@ -556,7 +560,6 @@ router.get('/listDcotorsAndAgents', verifyToken, (req, res) => {
         })
     })
 })
-
 
 
 

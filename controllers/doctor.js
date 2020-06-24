@@ -50,69 +50,68 @@ router.post('/signUp', (req, res) => {
         if (agents || admins || patients) {
           res.json({ "message": "user already registered" });
         }
+        else {
+          doctorModel.findOne({ email: req.body.email }).exec((err, doctor) => {
+            if (err) {
+              res.json({ "message": "error" })
+            }
+            else if (!doctor) {
+              const {
+                username,
+                password,
+                location,
+                email,
+                briefSummery,
+                phone,
+                title,
+                gender,
+                Questions } = req.body
+              let activeChecked = "true"
+
+              const newDoctor = new doctorModel({
+                _id: mongoose.Types.ObjectId(),
+                username,
+                password,
+                location,// that is contain  City And Region
+                email,
+                briefSummery,
+                phone,
+                gender,
+                title,
+                activeChecked,
+                Questions,   // "Questions" is array of objects and each object contain all Questions like {"question" : "" , "type":""}
+              })
+              bcrypt.genSalt(10, function (err, salt) {
+                if (err) {
+                  res.json({ "message": "error" })
+                }
+                bcrypt.hash(req.body.password, salt, function (err, hash) {
+                  if (err) {
+                    res.json({ "message": "error" })
+                  }
+                  newDoctor.password = hash;
+                  newDoctor.save((err) => {
+                    if (err) {
+                      res.json({ "message": "error" })
+                    }
+                    res.json({ "message": "success", data: newDoctor })
+                  });
+
+                });
+              });
+            }
+            else {
+              res.json({ "message": "user already registered" });
+            }
+          })
+
+
+        }
       })
     })
   })
 
-  doctorModel.findOne({ email: req.body.email }).exec((err, doctor) => {
-    if (err) {
-      res.json({ "message": "error" })
-    }
-    else if (!doctor) {
-      const {
-        username,
-        password,
-        location,
-        email,
-        briefSummery,
-        phone,
-        title,
-        gender,
-        Questions } = req.body
-      var currentdate = new Date();
-      var createdDate = {
-        "day": currentdate.getDate(),
-        "month": (currentdate.getMonth() + 1),
-        "year": currentdate.getFullYear()
-      }
-      let activeChecked = "true"
-      const newDoctor = new doctorModel({
-        _id: mongoose.Types.ObjectId(),
-        username,
-        password,
-        location,// that is contain  City And Region
-        email,
-        briefSummery,
-        phone,
-        gender,
-        title,
-        activeChecked,
-        Questions,   // "Questions" is array of objects and each object contain all Questions like {"question" : "" , "type":""}
-        createdDate
-      })
-      bcrypt.genSalt(10, function (err, salt) {
-        if (err) {
-          res.json({ "message": "error" })
-        }
-        bcrypt.hash(req.body.password, salt, function (err, hash) {
-          if (err) {
-            res.json({ "message": "error" })
-          }
-          newDoctor.password = hash;
-          newDoctor.save((err) => {
-            if (err) {
-              res.json({ "message": "error" })
-            }
-            res.json({ "message": "success", data: newDoctor })
-          });
 
-        });
-      });
-    }
-    else {
-      res.json({ "message": "user already registered" });
-    }
-  })
 })
 
 router.get('/listAll', (req, res) => {// list all Doctors 
@@ -139,7 +138,6 @@ router.post('/account', (req, res) => {// return data of doctor by ID
 })
 
 
-
 router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to handel req.sesion.user
   const doctorID = req.userID;
   const {
@@ -149,13 +147,7 @@ router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to hande
     patientID,
 
   } = req.body
-  var currentdate = new Date();
-  var createdDate = {
-    "day": currentdate.getDate(),
-    "month": (currentdate.getMonth() + 1),
-    "year": currentdate.getFullYear()
-  }
-  debugger
+
   diagnosisModel.findOne({ patientID: patientID, doctorID: doctorID }).exec((err, alreadySended) => {
     if (err) {
       res.json({ "message": 'error' })
@@ -186,7 +178,6 @@ router.post('/createTreatmentPlan', verifyToken, (req, res) => { //need to hande
           description,
           patientID,
           doctorID,
-          createdDate
         })
 
         newTreatmentPlan.save((err, result) => {
@@ -266,6 +257,22 @@ router.get('/getAllDiagnosis', verifyToken, (req, resp) => {
 
 });
 
+
+router.post("/uploadImage", verifyToken, (req, resp) => {
+
+  const { imageURL } = req.body
+  doctorModel.findOne({ _id: req.userID }).exec((err, data) => {
+    data.profileIMG = imageURL
+
+    data.save((err, data) => {
+
+      err ? resp.json({ message: 'error' }) : resp.json({ message: 'success', data })
+
+    })
+
+  })
+
+});
 
 
 

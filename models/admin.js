@@ -24,7 +24,7 @@ let adminModel = new mongoose.model('admin', {
     },
     approving : [{
         type: mongoose.Schema.Types.ObjectId,
-         ref: 'travelAgent' 
+        enum: ['travelAgent' , 'Doctor'] 
     }]
 })
 

@@ -36,84 +36,89 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
                 if (doctors || admins || patients) {
                     res.json({ "message": "user already registered" });
                 }
+                else {
+
+
+                    travelAgentModel.findOne({ email: req.body.email }).exec((err, agent) => {
+                        if (err) {
+                            debugger
+                            res.json({ "message": "error" })
+                        }
+
+                        else if (!agent) {
+                            debugger
+                            const {
+                                companyName,
+                                password,
+                                email,
+                                phone,
+                                location
+                            } = req.body
+                            isApproved = "false"
+                            var currentdate = new Date();
+                            var createdDate = {
+                                "day": currentdate.getDate(),
+                                "month": (currentdate.getMonth() + 1),
+                                "year": currentdate.getFullYear()
+                            }
+                            const newTravelAgent = new travelAgentModel({
+                                _id: mongoose.Types.ObjectId(),
+                                companyName,
+                                password,
+                                email,
+                                phone,
+                                location,
+                                isApproved,
+                                createdDate
+                            })
+
+                            bcrypt.genSalt(10, function (err, salt) {
+                                if (err) {
+                                    res.json({ "message": "error" })
+                                }
+                                bcrypt.hash(req.body.password, salt, function (err, hash) {
+                                    if (err) {
+                                        res.json({ "message": "error" })
+                                    }
+                                    adminModel.findOne({ email: "khaledkamal9734@gmail.com" }).exec((err, admin) => {
+                                        if (err) {
+                                            res.json({ "message": "error" })
+                                        }
+                                        admin.approving.push(newTravelAgent._id)
+                                        admin.save((err) => {
+                                            if (err) {
+                                                res.json({ "message": "error" })
+                                            }
+                                            newTravelAgent.password = hash
+                                            newTravelAgent.save((err) => {
+                                                if (err) {
+                                                    res.json({ "message": "error" })
+                                                }
+                                                const payload = { subject: newTravelAgent._id }
+                                                const token = jwt.sign(payload, 'secretKey')
+                                                res.json({ "message": "success", token, type: 'travelAgent' })
+
+                                            })
+
+                                        })
+
+                                    })
+
+                                });
+                            });
+
+                        }
+                        else {
+                            res.json({ "message": "user already registered" });
+                        }
+                    })
+
+                }
             })
         })
     })
 
 
-    travelAgentModel.findOne({ email: req.body.email }).exec((err, agent) => {
-        if (err) {
-            debugger
-            res.json({ "message": "error" })
-        }
-
-        else if (!agent) {
-            debugger
-            const {
-                companyName,
-                password,
-                email,
-                phone,
-                location
-            } = req.body
-            isApproved = "false"
-            var currentdate = new Date();
-            var createdDate = {
-                "day": currentdate.getDate(),
-                "month": (currentdate.getMonth() + 1),
-                "year": currentdate.getFullYear()
-            }
-            const newTravelAgent = new travelAgentModel({
-                _id: mongoose.Types.ObjectId(),
-                companyName,
-                password,
-                email,
-                phone,
-                location,
-                isApproved,
-                createdDate
-            })
-
-            bcrypt.genSalt(10, function (err, salt) {
-                if (err) {
-                    res.json({ "message": "error" })
-                }
-                bcrypt.hash(req.body.password, salt, function (err, hash) {
-                    if (err) {
-                        res.json({ "message": "error" })
-                    }
-                    adminModel.findOne({ email: "khaledkamal9734@gmail.com" }).exec((err, admin) => {
-                        if (err) {
-                            res.json({ "message": "error" })
-                        }
-                        admin.approving.push(newTravelAgent._id)
-                        admin.save((err) => {
-                            if (err) {
-                                res.json({ "message": "error" })
-                            }
-                            newTravelAgent.password = hash
-                            newTravelAgent.save((err) => {
-                                if (err) {
-                                    res.json({ "message": "error" })
-                                }
-                                const payload = { subject: newTravelAgent._id }
-                                const token = jwt.sign(payload, 'secretKey')
-                                res.json({ "message": "success", token, type: 'travelAgent' })
-
-                            })
-
-                        })
-
-                    })
-
-                });
-            });
-
-        }
-        else {
-            res.json({ "message": "user already registered" });
-        }
-    })
 
 })
 

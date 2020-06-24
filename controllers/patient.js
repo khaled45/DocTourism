@@ -39,15 +39,15 @@ router.post('/signUp', (req, res) => {
   doctorModel.findOne({ email: req.body.email }).exec((err, doctors) => {
     if (err) {
       debugger
-      res.json({ "message": "error1" })
+      res.json({ "message": "error" })
     }
     adminModel.findOne({ email: req.body.email }).exec((err2, admins) => {
       if (err2) {
-        res.json({ "message": "error2" })
+        res.json({ "message": "error" })
       }
       travelAgentModel.findOne({ email: req.body.email }).exec((err3, agents) => {
         if (err3) {
-          res.json({ "message": "error3" })
+          res.json({ "message": "error" })
         }
         if (doctors || admins || agents) {
           debugger
@@ -57,7 +57,7 @@ router.post('/signUp', (req, res) => {
 
           patientModel.findOne({ email: req.body.email }).exec((err, patient) => {
             if (err) {
-              res.json({ "message": "error4" })
+              res.json({ "message": "error" })
             }
             else if (!patient) {
               const {
@@ -67,12 +67,6 @@ router.post('/signUp', (req, res) => {
                 phone,
                 gender,
                 age } = req.body
-              var currentdate = new Date();
-              var createdDate = {
-                "day": currentdate.getDate(),
-                "month": (currentdate.getMonth() + 1),
-                "year": currentdate.getFullYear()
-              }
               const newPatient = new patientModel({
                 _id: mongoose.Types.ObjectId(),
                 username,
@@ -80,22 +74,21 @@ router.post('/signUp', (req, res) => {
                 email,
                 phone,
                 gender,
-                age,
-                createdDate
+                age
               })
               debugger
               bcrypt.genSalt(10, function (err, salt) {
                 if (err) {
-                  res.json({ "message": "error5" })
+                  res.json({ "message": "error" })
                 }
                 bcrypt.hash(req.body.password, salt, function (err, hash) {
                   if (err) {
-                    res.json({ "message": "error6" })
+                    res.json({ "message": "error" })
                   }
                   newPatient.password = hash;
                   newPatient.save((err) => {
                     if (err) {
-                      res.json({ "message": "error7" })
+                      res.json({ "message": "error" })
                     }
                     const payload = { subject: newPatient._id }
                     const token = jwt.sign(payload, 'secretKey')
