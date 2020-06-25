@@ -80,30 +80,33 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
                                     if (err) {
                                         res.json({ "message": "error" })
                                     }
-                                    adminModel.findOne({ email: "khaledkamal9734@gmail.com" }).exec((err, admin) => {
+
+                                    newTravelAgent.password = hash
+                                    newTravelAgent.save((err) => {
                                         if (err) {
                                             res.json({ "message": "error" })
                                         }
-                                        admin.approving.push(newTravelAgent._id)
-                                        admin.save((err) => {
+
+
+                                        adminModel.findOne({ email: "khaledkamal9734@gmail.com" }).exec((err, admin) => {
                                             if (err) {
                                                 res.json({ "message": "error" })
                                             }
-                                            newTravelAgent.password = hash
-                                            newTravelAgent.save((err) => {
+                                            admin.approving.push(newTravelAgent._id)
+                                            admin.save((err) => {
                                                 if (err) {
                                                     res.json({ "message": "error" })
                                                 }
-                                                const payload = { subject: newTravelAgent._id }
-                                                const token = jwt.sign(payload, 'secretKey')
-                                                res.json({ "message": "success", token, type: 'travelAgent' })
+
+                                                res.json({ "message": "success", data: newTravelAgent })
 
                                             })
 
                                         })
 
-                                    })
 
+
+                                    })
                                 });
                             });
 

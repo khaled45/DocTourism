@@ -60,7 +60,7 @@ router.post('/', parseUrlencoded, async (req, res) => {
 
               bcrypt.compare(req.body.password, patients.password, (err, validepassword) => {
                 if (err) {
-                  res.json({ "message": "error",err })
+                  res.json({ "message": "error", err })
                 }
                 else if (!validepassword) {
                   res.status(400).json({ "message": "invalid email or passwod" })
@@ -78,7 +78,7 @@ router.post('/', parseUrlencoded, async (req, res) => {
               if (doctors.isApproved == "true") {
                 bcrypt.compare(req.body.password, doctors.password, (err, validepassword) => {
                   if (err) {
-                    res.json({ "message": "error",err })
+                    res.json({ "message": "error", err })
                   }
                   else if (!validepassword) {
                     res.status(400).json({ "message": "invalid email or passwod" })
@@ -324,16 +324,16 @@ router.post("/forget/password", async (req, res) => {
 });
 
 
-router.post("/reset/password", parseUrlencoded, async (req, res) => {
+router.post("/reset/password", parseUrlencoded, (req, res) => {
 
-  var {
-    error
-  } = validate(req.body);
+  // var {
+  //   error
+  // } = validate(req.body);
 
-  if (error) {
+  // if (error) {
 
-    return res.status(400).json({ "message": "error" });
-  }
+  //   return res.status(400).json({ "message": "error" });
+  // }
 
   _email = req.body.email
   _password = req.body.password
@@ -356,7 +356,7 @@ router.post("/reset/password", parseUrlencoded, async (req, res) => {
           if (err) {
             res.json({ "message": "error" })
           }
-
+debugger
           if (agents) {
             bcrypt.genSalt(10, function (err, salt) {
               if (err) {
