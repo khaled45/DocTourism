@@ -92,7 +92,7 @@ router.post('/signUp', (req, res) => {
                     }
                     const payload = { subject: newPatient._id }
                     const token = jwt.sign(payload, 'secretKey')
-                    res.json({ "message": "success", token, type: 'patient' })
+                    res.json({ "message": "success", token, type: 'patient',id:newPatient._id })
                   });
 
                 });
