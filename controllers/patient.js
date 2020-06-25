@@ -92,7 +92,7 @@ router.post('/signUp', (req, res) => {
                     }
                     const payload = { subject: newPatient._id }
                     const token = jwt.sign(payload, 'secretKey')
-                    res.json({ "message": "success", token, type: 'patient' })
+                    res.json({ "message": "success", token, type: 'patient', id: newPatient._id })
                   });
 
                 });
@@ -232,9 +232,9 @@ router.post("/fillDiagnosisForm", verifyToken, (req, res) => { // use req.sessio
   });
 });
 
-router.post("/Acceptance", (req, res) => {// use req.session.user here
-  // const patientID = req.userID
-  const { accept_flag, treatmentID, patientID } = req.body
+router.post("/Acceptance", verifyToken, (req, res) => {
+  const patientID = req.userID
+  const { accept_flag, treatmentID } = req.body
 
   treatmentPlanModel.findOne({ _id: treatmentID, patientID: patientID }).exec((err, treatment) => {
     if (err) {
@@ -361,7 +361,7 @@ router.post('/enrollProgram', (req, res) => {
 
 router.post("/feedback", (req, res) => {
   const { patientID, comment, rate, doctorID } = req.body
-  var datetime = new Date();
+  let avr = 0
   patientModel.findOne({ _id: patientID }).exec((err, patient) => {
     if (err) {
       res.json({ "message": "error1" })
@@ -370,15 +370,25 @@ router.post("/feedback", (req, res) => {
       if (err) {
         res.json({ "message": "error2" })
       }
-      let feedback = { "comment": comment, "rate": rate, "data": datetime, "PName": patient.name }
+      debugger
+      let feedback = { "comment": comment, "rate": rate, "data": (new Date()).toLocaleDateString(), "PName": patient.username }
       doctor.feedbacks.push(feedback)
-
+      debugger
+      for (let val of doctor.feedbacks) {
+        debugger
+        avr = avr +parseInt(val.rate) 
+      }
+      totalRate = avr / doctor.feedbacks.length
+      debugger
+      doctor.rate = totalRate
+      debugger
       doctor.save((err) => {
         if (err) {
           res.json({ "message": "error3" })
         }
         res.json({ "message": "success" })
       })
+
     })
   })
 })
