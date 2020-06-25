@@ -232,9 +232,9 @@ router.post("/fillDiagnosisForm", verifyToken, (req, res) => { // use req.sessio
   });
 });
 
-router.post("/Acceptance", (req, res) => {// use req.session.user here
-  // const patientID = req.userID
-  const { accept_flag, treatmentID, patientID } = req.body
+router.post("/Acceptance", verifyToken,(req, res) => {
+  const patientID = req.userID
+  const { accept_flag, treatmentID } = req.body
 
   treatmentPlanModel.findOne({ _id: treatmentID, patientID: patientID }).exec((err, treatment) => {
     if (err) {
