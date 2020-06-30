@@ -259,7 +259,6 @@ router.get('/getAllDiagnosis', verifyToken, (req, resp) => {
 
 
 router.post("/uploadImage", verifyToken, (req, resp) => {
-
   const { imageURL } = req.body
   doctorModel.findOne({ _id: req.userID }).exec((err, data) => {
     data.profileIMG = imageURL

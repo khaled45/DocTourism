@@ -329,33 +329,42 @@ router.post('/ProgramsByArea', (req, res) => {//return array of programs splitin
 
 //test needed
 router.post('/enrollProgram', (req, res) => {
-  const { patientID, programID } = req.body
+  // const patientID = req.user.id
+  const {
+    numberOfAdults,
+    numberOfChildren,
+    arrivelDate,
+    patientID,
+    programID
+   } = req.body
 
   programModel.findOne({ _id: programID }).exec((err, program) => {
     if (err) {
       res.json({ "message": "error" })
     }
-    travelAgentModel.findOne({ _id: program.travelAgentID }).exec((err, agent) => {
+    program.touristID.push(patientID)
+    program.save((err)=>{
       if (err) {
         res.json({ "message": "error" })
       }
-      agent.patientsID.push(patientID)
-      agent.save((err) => {
-        if (err) {
-          res.json({ "message": "error" })
-        }
-        console.log("saved patient id in array in travel agent model")
-
-        patientModel.findOneAndUpdate({ _id: patientID }, { programID: programID }).exec((err) => {
+      travelAgentModel.findOne({_id:program.travelAgentID}).exec((err,travelAgent)=>{
+        travelAgent.patientsID.push(patientID)
+        travelAgent.save((err)=>{
           if (err) {
             res.json({ "message": "error" })
           }
-          console.log("put program id in patient data")
-          res.json({ "message": "success" })
+          let prog = {"arrivelDate":arrivelDate , "programID" : programID , "numberOfAdults":numberOfAdults , "numberOfChildren" : numberOfChildren}
+          patientModel.findOneAndUpdate({_id : patientID} , {program : prog} , (err)=>{
+            if (err) {
+              res.json({ "message": "error" })
+            }
+            console.log("user is Enrolled in this program")
+            res.json({ "message": "success"})
+          })
         })
       })
     })
-  })
+   })
 
 })
 
@@ -376,7 +385,7 @@ router.post("/feedback", (req, res) => {
       debugger
       for (let val of doctor.feedbacks) {
         debugger
-        avr = avr +parseInt(val.rate) 
+        avr = avr + parseInt(val.rate)
       }
       totalRate = avr / doctor.feedbacks.length
       debugger

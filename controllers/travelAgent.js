@@ -126,37 +126,46 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
 })
 
 router.post("/AddProgram", (req, res) => {
+    // const travelAgentID = req.user.id
     const {
         travelAgentID,
-        name,
-        location,
+        title,
+        itinerary,
+        included,
+        excluded,
+        catygory,
         cost,
-        discription,
+        numberOfDays,
         IMG
     } = req.body
-
+debugger
     const newProgram = new programModel({
         _id: mongoose.Types.ObjectId(),
         travelAgentID,
-        name,
-        location,
+        title,
+        itinerary,
+        included,
+        excluded,
+        catygory,
         cost,
-        discription,
+        numberOfDays,
         IMG
     })
-
+debugger
     newProgram.save((err, program) => {
         if (err) {
-            res.send(err)
+            res.json({ message: "error" })
         }
         travelAgentModel.findOne({ _id: travelAgentID }).exec((err, agent) => {
             if (err) {
-                res.send(err)
+                res.json({ message: "error" })
             }
+            debugger
             agent.tourismPrograms.push(program._id)
             agent.save()
             console.log("saved in array")
-            res.send(program)
+            debugger
+            res.json({ message: "success" , data : program })
 
         })
     })
