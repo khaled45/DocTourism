@@ -115,7 +115,7 @@ router.post('/signUp', (req, res) => {
 })
 
 router.get('/listAll', (req, res) => {// list all Doctors 
-  doctorModel.find({ activeChecked: "true" }).exec((err, data) => {
+  doctorModel.find({ activeChecked: "true" , isApproved  : "true" }).exec((err, data) => {
     if (err) {
       res.json({ "message": 'error' })
     }
@@ -259,7 +259,6 @@ router.get('/getAllDiagnosis', verifyToken, (req, resp) => {
 
 
 router.post("/uploadImage", verifyToken, (req, resp) => {
-
   const { imageURL } = req.body
   doctorModel.findOne({ _id: req.userID }).exec((err, data) => {
     data.profileIMG = imageURL

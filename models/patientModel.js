@@ -31,11 +31,8 @@ let patientModel = new mongoose.model('Patient', {
         type: String,
         required: true
     },
-    arrivelDate: {
-        type: Date,
-    },
-    leaveDate: {
-        type: Date,
+    program: {
+        type: Object
     },
     profileImg: {
         type: String,
@@ -45,11 +42,7 @@ let patientModel = new mongoose.model('Patient', {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Diagnosis'
     }],
-
-    programID: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "programs",
-    },
+    
     CreatedDate: {
         type: Date,
         default: Date.now // day , month , year

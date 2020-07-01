@@ -326,14 +326,6 @@ router.post("/forget/password", async (req, res) => {
 
 router.post("/reset/password", parseUrlencoded, (req, res) => {
 
-  var {
-    error
-  } = validate(req.body);
-
-  if (error) {
-
-    return res.status(400).json({ "message": "error" });
-  }
 
   _email = req.body.email
   _password = req.body.password

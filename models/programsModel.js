@@ -1,33 +1,42 @@
 var mongoose = require('mongoose')
+const { required, string } = require('joi')
 
 let programsModel = new mongoose.model('programs', {
     _id: mongoose.Schema.Types.ObjectId,
-    name: {
+    title: {
         type: String,
-        required: true,
-        max: 30
+        max: 50
     },
-    location: {
-
-        type: Object,
-        required: true
+    itinerary: [{
+        type: Object
+    }],
+    included: [{
+        type: String
+    }],
+    excluded: [{
+        type: String
+    }],
+    catygory: {
+        type: String
     },
     cost: {
-        type: Number,
-        required: true
+        type: Object
     },
-    discription: {
-        type: String,
-        required: true,
-        min: 20
+    numberOfDays: {
+        type: Number
+    },
+    IMG: {
+        type: String
     },
     travelAgentID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'travelAgent'
     },
-    IMG: {
-        type: String
-    }
+    touristID: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Patient'
+    }]
+   
 })
 module.exports = programsModel
 
