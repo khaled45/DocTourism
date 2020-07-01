@@ -55,12 +55,7 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
                                 location
                             } = req.body
                             isApproved = "false"
-                            var currentdate = new Date();
-                            var createdDate = {
-                                "day": currentdate.getDate(),
-                                "month": (currentdate.getMonth() + 1),
-                                "year": currentdate.getFullYear()
-                            }
+
                             const newTravelAgent = new travelAgentModel({
                                 _id: mongoose.Types.ObjectId(),
                                 companyName,
@@ -69,7 +64,6 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
                                 phone,
                                 location,
                                 isApproved,
-                                createdDate
                             })
 
                             bcrypt.genSalt(10, function (err, salt) {
@@ -86,26 +80,8 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
                                         if (err) {
                                             res.json({ "message": "error" })
                                         }
-
-
-                                        adminModel.findOne({ email: "khaledkamal9734@gmail.com" }).exec((err, admin) => {
-                                            if (err) {
-                                                res.json({ "message": "error" })
-                                            }
-                                            admin.approving.push(newTravelAgent._id)
-                                            admin.save((err) => {
-                                                if (err) {
-                                                    res.json({ "message": "error" })
-                                                }
-
-                                                res.json({ "message": "success", data: newTravelAgent })
-
-                                            })
-
-                                        })
-
-
-
+                                        else
+                                            res.json({ "message": "success" })
                                     })
                                 });
                             });
@@ -118,17 +94,20 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
 
                 }
             })
-        })
+        });
+    });
+});
+
+router.get('/account', verifyToken, (req, resp) => {
+    const travelAgentID = req.userID
+    travelAgentModel.findOne({ _id: travelAgentID }).exec((err, data) => {
+        err ? resp.json({ message: 'error', err }) : resp.json({ message: 'succes', data })
     })
-
-
-
 })
 
-router.post("/AddProgram", (req, res) => {
-    // const travelAgentID = req.user.id
+router.post("/AddProgram", verifyToken, (req, res) => {
+    const travelAgentID = req.userID
     const {
-        travelAgentID,
         title,
         itinerary,
         included,
@@ -138,7 +117,7 @@ router.post("/AddProgram", (req, res) => {
         numberOfDays,
         IMG
     } = req.body
-debugger
+    debugger
     const newProgram = new programModel({
         _id: mongoose.Types.ObjectId(),
         travelAgentID,
@@ -151,7 +130,7 @@ debugger
         numberOfDays,
         IMG
     })
-debugger
+    debugger
     newProgram.save((err, program) => {
         if (err) {
             res.json({ message: "error" })
@@ -165,14 +144,14 @@ debugger
             agent.save()
             console.log("saved in array")
             debugger
-            res.json({ message: "success" , data : program })
+            res.json({ message: "success", data: program })
 
         })
     })
 
 })
 
-router.post("/deleteProgram", (req, res) => {
+router.post("/deleteProgram", verifyToken, (req, res) => {
     const { programID } = req.body
     programModel.remove({ _id: programID }).exec((err) => {
         if (err) {
@@ -182,8 +161,8 @@ router.post("/deleteProgram", (req, res) => {
     })
 })
 
-router.get('/program/:id', (req, res) => {
-    programModel.findOne({ _id: req.params.id }).exec((err, program) => {
+router.post('/getprogram', (req, res) => {
+    programModel.findOne({ _id: req.body.programID }).exec((err, program) => {
         if (err) {
             res.send(err)
         }
