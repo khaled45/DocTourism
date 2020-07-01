@@ -23,7 +23,10 @@ let patientModel = new mongoose.model('Patient', {
         max: 255
 
     },
-    age: Number,
+    age: {
+        type: Number,
+        required: true
+    },
     gender: {
         type: String,
         required: true

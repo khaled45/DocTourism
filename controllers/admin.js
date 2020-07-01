@@ -563,5 +563,4 @@ router.get('/listDcotorsAndAgents', verifyToken, (req, res) => {
 
 
 
-
 module.exports = router;
