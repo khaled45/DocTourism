@@ -71,7 +71,7 @@ router.post('/signUp', parseUrlencoded, async (req, res) => {
                                 isApproved,
                                 createdDate
                             })
-
+                            debugger
                             bcrypt.genSalt(10, function (err, salt) {
                                 if (err) {
                                     res.json({ "message": "error" })
@@ -136,9 +136,10 @@ router.post("/AddProgram", (req, res) => {
         catygory,
         cost,
         numberOfDays,
+        location,
         IMG
     } = req.body
-debugger
+    debugger
     const newProgram = new programModel({
         _id: mongoose.Types.ObjectId(),
         travelAgentID,
@@ -149,9 +150,10 @@ debugger
         catygory,
         cost,
         numberOfDays,
+        location,
         IMG
     })
-debugger
+    debugger
     newProgram.save((err, program) => {
         if (err) {
             res.json({ message: "error" })
@@ -165,7 +167,7 @@ debugger
             agent.save()
             console.log("saved in array")
             debugger
-            res.json({ message: "success" , data : program })
+            res.json({ message: "success", data: program })
 
         })
     })

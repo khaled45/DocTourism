@@ -28,6 +28,9 @@ let programsModel = new mongoose.model('programs', {
     IMG: {
         type: String
     },
+    location: {
+        type: String
+    },
     travelAgentID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'travelAgent'
@@ -36,7 +39,7 @@ let programsModel = new mongoose.model('programs', {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Patient'
     }]
-   
+
 })
 module.exports = programsModel
 
