@@ -115,9 +115,8 @@ router.post("/AddProgram", verifyToken, (req, res) => {
         catygory,
         cost,
         numberOfDays,
-        IMG
+        location
     } = req.body
-    debugger
     const newProgram = new programModel({
         _id: mongoose.Types.ObjectId(),
         travelAgentID,
@@ -128,10 +127,11 @@ router.post("/AddProgram", verifyToken, (req, res) => {
         catygory,
         cost,
         numberOfDays,
-        IMG
+        location
     })
     debugger
     newProgram.save((err, program) => {
+        debugger
         if (err) {
             res.json({ message: "error" })
         }
@@ -139,7 +139,7 @@ router.post("/AddProgram", verifyToken, (req, res) => {
             if (err) {
                 res.json({ message: "error" })
             }
-            debugger
+
             agent.tourismPrograms.push(program._id)
             agent.save()
             console.log("saved in array")
@@ -178,6 +178,22 @@ router.post('/AllPrograms', (req, res) => {
         }
         res.send(programs)
     })
+});
+
+
+router.post('/uploadImages', verifyToken, (req, resp) => {
+    const { imageURL, programID } = req.body
+    programModel.findOne({ _id: programID }).exec((err, data) => {
+        data.IMG.push(imageURL)
+
+        data.save((err, data) => {
+
+            err ? resp.json({ message: 'error' }) : resp.json({ message: 'success', data })
+
+        })
+
+    })
+
 })
 
 module.exports = router;
