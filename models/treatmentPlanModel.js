@@ -33,8 +33,11 @@ let treatmentPlanModel = new mongoose.model('treatmentPlan', {
     CreatedDate: {
         type: Date,
         default: Date.now // day , month , year
+    },
+    location: {
+        type: Object
     }
 
 })
 
-module.exports = treatmentPlanModel 
+module.exports = treatmentPlanModel

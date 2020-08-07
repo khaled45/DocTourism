@@ -1,5 +1,6 @@
 var jwt = require('jsonwebtoken');
 
+//token verification
 
 function VerifyToken(req, resp, next) {
 
@@ -17,7 +18,7 @@ function VerifyToken(req, resp, next) {
     if (!payload) {
         resp.status(401).send('unauthorized request');
     }
-    
+
     req.userID = payload.subject
     next();
 

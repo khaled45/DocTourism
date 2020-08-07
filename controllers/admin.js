@@ -7,7 +7,7 @@ var verifyToken = require('./Authentication')
 var parseUrlencoded = bodyParser.urlencoded({
     extended: true
 });
-const nodemailer = require('nodemailer');// for send verification mails
+const nodemailer = require('nodemailer'); // for send verification mails
 
 
 var adminModel = require("../models/admin")
@@ -26,82 +26,79 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-router.post('/signUp', parseUrlencoded, async (req, res) => {
+router.post('/signUp', parseUrlencoded, async(req, res) => {
 
 
-    travelAgentModel.findOne({ email: req.body.email }).exec((err, agents) => {
-        if (err) {
-            res.json({ "message": "error" })
-        }
-        doctorModel.findOne({ email: req.body.email }).exec((err, doctors) => {
+        travelAgentModel.findOne({ email: req.body.email }).exec((err, agents) => {
             if (err) {
                 res.json({ "message": "error" })
             }
-            patientModel.findOne({ email: req.body.email }).exec((err, patients) => {
+            doctorModel.findOne({ email: req.body.email }).exec((err, doctors) => {
                 if (err) {
                     res.json({ "message": "error" })
                 }
-                if (agents || doctors || patients) {
-                    res.json({ "message": "user already registered" });
-                }
-                else {
+                patientModel.findOne({ email: req.body.email }).exec((err, patients) => {
+                    if (err) {
+                        res.json({ "message": "error" })
+                    }
+                    if (agents || doctors || patients) {
+                        res.json({ "message": "user already registered" });
+                    } else {
 
-                    adminModel.findOne({ email: req.body.email }).exec((err, admin) => {
-                        if (err) {
-                            res.json({ "message": "error" })
-                        }
-                        else if (!admin) {
-                            const {
-                                username,
-                                password,
-                                email,
-                                phone
-                            } = req.body
+                        adminModel.findOne({ email: req.body.email }).exec((err, admin) => {
+                            if (err) {
+                                res.json({ "message": "error" })
+                            } else if (!admin) {
+                                const {
+                                    username,
+                                    password,
+                                    email,
+                                    phone
+                                } = req.body
 
-                            const newAdmin = new adminModel({
-                                _id: mongoose.Types.ObjectId(),
-                                username,
-                                password,
-                                email,
-                                phone
-                            })
+                                const newAdmin = new adminModel({
+                                    _id: mongoose.Types.ObjectId(),
+                                    username,
+                                    password,
+                                    email,
+                                    phone
+                                })
 
-                            bcrypt.genSalt(10, function (err, salt) {
-                                if (err) {
-                                    res.json({ "message": "error" })
-                                }
-                                bcrypt.hash(req.body.password, salt, function (err, hash) {
+                                bcrypt.genSalt(10, function(err, salt) {
                                     if (err) {
                                         res.json({ "message": "error" })
                                     }
-                                    newAdmin.password = hash;
-                                    newAdmin.save((err) => {
+                                    bcrypt.hash(req.body.password, salt, function(err, hash) {
                                         if (err) {
                                             res.json({ "message": "error" })
                                         }
-                                        res.json({ "message": "success", data: newAdmin })
+                                        newAdmin.password = hash;
+                                        newAdmin.save((err) => {
+                                            if (err) {
+                                                res.json({ "message": "error" })
+                                            }
+                                            res.json({ "message": "success", data: newAdmin })
+                                        });
+
                                     });
-
                                 });
-                            });
-                        }
-                        else {
-                            res.json({ "message": "user already registered" })
-                        }
-                    })
+                            } else {
+                                res.json({ "message": "user already registered" })
+                            }
+                        })
 
-                }
+                    }
+                })
             })
         })
+
+
+
+
+
     })
-
-
-
-
-
-})
-
-router.post("/Approving", (req, res) => { //need testing
+    // admin approve doctors and travel agents requests 
+router.post("/Approving", (req, res) => {
     const { ID, approveFlag } = req.body
     travelAgentModel.findOne({ _id: ID }).exec((err, agent) => {
         if (err) {
@@ -214,8 +211,7 @@ router.post("/Approving", (req, res) => { //need testing
                             })
                         });
 
-                    }
-                    else if (approveFlag == "true") {
+                    } else if (approveFlag == "true") {
                         doctor.isApproved = approveFlag
                         doctor.save((err) => {
                             if (err) {
@@ -313,8 +309,7 @@ router.post("/Approving", (req, res) => { //need testing
                                 res.json({ "message": "success" })
                             });
                         })
-                    }
-                    else {
+                    } else {
                         res.json({ "message": "error" })
                     }
                 }
@@ -417,8 +412,7 @@ router.post("/Approving", (req, res) => { //need testing
                         res.json({ "message": "error" })
                     }
                 });
-            }
-            else if (approveFlag == "true") {
+            } else if (approveFlag == "true") {
                 agent.isApproved = approveFlag
                 agent.save((err) => {
                     if (err) {
@@ -515,8 +509,7 @@ router.post("/Approving", (req, res) => { //need testing
                         res.json({ "message": "success" })
                     });
                 })
-            }
-            else {
+            } else {
                 res.json({ "message": "error" })
             }
         }
@@ -526,7 +519,9 @@ router.post("/Approving", (req, res) => { //need testing
 
 })
 
-router.post("/deletTravelAgent", (req, res) => {//need testing
+// admin remove agents form system
+
+router.post("/deletTravelAgent", (req, res) => { //need testing
     const { TravelAgentID } = req.body
     travelAgentModel.remove({ _id: TravelAgentID }).exec((err) => {
         if (err) {
@@ -536,7 +531,9 @@ router.post("/deletTravelAgent", (req, res) => {//need testing
     })
 })
 
-router.post("/deletDoctor", (req, res) => {//need testing
+// admin remove doctors form system
+
+router.post("/deletDoctor", (req, res) => { //need testing
     const { doctorID } = req.body
     doctorModel.remove({ _id: doctorID }).exec((err) => {
         if (err) {
@@ -560,7 +557,6 @@ router.get('/listDcotorsAndAgents', verifyToken, (req, res) => {
         })
     })
 })
-
 
 
 

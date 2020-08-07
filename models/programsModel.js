@@ -1,5 +1,5 @@
 var mongoose = require('mongoose')
-const { required, string } = require('joi')
+const { required, string, object } = require('joi')
 
 let programsModel = new mongoose.model('programs', {
     _id: mongoose.Schema.Types.ObjectId,
@@ -11,10 +11,10 @@ let programsModel = new mongoose.model('programs', {
         type: Object
     }],
     included: [{
-        type: String
+        type: Object
     }],
     excluded: [{
-        type: String
+        type: Object
     }],
     catygory: {
         type: String
@@ -25,9 +25,9 @@ let programsModel = new mongoose.model('programs', {
     numberOfDays: {
         type: Number
     },
-    IMG: {
+    IMG: [{
         type: String
-    },
+    }],
     location: {
         type: String
     },
@@ -42,5 +42,3 @@ let programsModel = new mongoose.model('programs', {
 
 })
 module.exports = programsModel
-
-
